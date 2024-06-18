@@ -1,0 +1,529 @@
+<ion-tabs #tabs (ionTabsDidChange)="setCurrentTab()">
+  <ion-tab-bar slot="bottom" *ngIf="selectedTab!='login'">
+    <ion-tab-button id="top-center">
+      <div class="notification-badge">
+        <ion-icon aria-hidden="true" name="notifications-outline"></ion-icon>
+        <ion-badge color="danger">4</ion-badge>
+      </div>
+    </ion-tab-button>
+    <!-- Notifications -->
+    <ion-popover trigger="top-center" side="top" alignment="center">
+      <ng-template>
+        <ion-content>
+          <ion-list [inset]="true">
+            <ion-item [button]="false" detail="false">
+              <div class="unread-indicator-wrapper" slot="start">
+                <div class="unread-indicator"></div>
+              </div>
+              <ion-label>
+                <strong>LTYS MX</strong>
+                <ion-text>Comentó en la actividad 003</ion-text><br />
+                <ion-note color="medium" class="ion-text-wrap">
+                  {{ 'hace una semana' }}
+                </ion-note>
+              </ion-label>
+            </ion-item>
+            <ion-item [button]="false" detail="false">
+              <div class="unread-indicator-wrapper" slot="start"></div>
+              <ion-label>
+                <strong>LTYS MX</strong>
+                <ion-text>Comentó en la actividad 039</ion-text><br />
+                <ion-note color="medium" class="ion-text-wrap">
+                  {{ 'hace 3 semanas' }}
+                </ion-note>
+              </ion-label>
+            </ion-item>
+            <ion-item [button]="false" detail="false">
+              <div class="unread-indicator-wrapper" slot="start">
+                <div class="unread-indicator"></div>
+              </div>
+              <ion-label>
+                <strong>LTYS MX</strong>
+                <ion-text>Comentó en la actividad 026</ion-text><br />
+                <ion-note color="medium" class="ion-text-wrap">
+                  {{ 'hace 3 semanas' }}
+                </ion-note>
+              </ion-label>
+            </ion-item>
+            <ion-item [button]="false" detail="false">
+              <div class="unread-indicator-wrapper" slot="start"></div>
+              <ion-label>
+                <strong>LTYS MX</strong>
+                <ion-text>Comentó en la actividad 028</ion-text><br />
+                <ion-note color="medium" class="ion-text-wrap">
+                  {{ 'hace 3 semanas' }}
+                </ion-note>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+        </ion-content>
+      </ng-template>
+    </ion-popover>
+
+    <!-- Modal Principal -->
+    <ion-modal [isOpen]="isOpenTicketsModal">
+      <ng-template>
+        <ion-header>
+          <ion-toolbar>
+            <ion-buttons slot="start">
+              <ion-button (click)="showTicketsModal(false)"
+                >Cancelar</ion-button
+              >
+            </ion-buttons>
+            <ion-buttons slot="end">
+              <ion-button (click)="confirm()" [strong]="true"
+                >Confirmar</ion-button
+              >
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content class="ion-padding" id="tickets_modal">
+          <nz-spin [nzSpinning]="isTicketSpinning">
+            <ion-title class="ion-text-center">Nueva Incidencia</ion-title>
+            <textarea
+              rows="1"
+              nz-input
+              [(ngModel)]="titleTicket"
+              placeholder="Titulo de la incidencia"
+            ></textarea>
+            <!-- Selección de Cliente -->
+            <ion-item class="ion-margin-top">
+              <ion-select
+                required
+                aria-label="Cliente"
+                interface="popover"
+                [placeholder]="cliente_select"
+                [(ngModel)]="cliente_select_id"
+                (ionChange)="handleClientSelect($event)"
+              >
+                <ion-select-option [value]="cliente_select_id">
+                  {{ cliente_select}}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <!-- Selección de Planta -->
+            <ion-item class="ion-margin-top">
+              <!-- <ion-select
+                required
+                aria-label="Planta"
+                interface="popover"
+                (ionChange)="handleSubsidiarySelect($event)"
+                placeholder="Seleccione Planta"
+                [interfaceOptions]="{ searchbarPlaceholder: 'Buscar planta...' }"
+              >
+                <ion-select-option
+                  *ngFor="let subsidiary of subsidiaries"
+                  [value]="subsidiary.id_subsidiary"
+                  >{{subsidiary.id_subsidiary}} - {{ subsidiary.client_name }}
+                </ion-select-option>
+              </ion-select> -->
+
+              <div class="mbsc-col-sm-12 mbsc-col-md-6">
+                <mbsc-select
+                  [data]="subsidiaries"
+                  display="center"
+                  [filter]="true"
+                  [buttons]="undefined"
+                  label="Sucursal"
+                  labelStyle="stacked"
+                  inputStyle="box"
+                  placeholder="Selecciona una opción"
+                  [options]="selectSettings"
+                  (onChange)="handleSubsidiarySelect($event)"
+                ></mbsc-select>
+              </div>
+            </ion-item>
+
+            <!-- Condición de Áreas y Trampas -->
+            <ion-list class="options-check">
+              <ion-radio-group
+                [(ngModel)]="selectedOption"
+                value="center"
+                [allowEmptySelection]="true"
+                (ionChange)="handleType($event)"
+              >
+                <ion-item>
+                  <ion-row>
+                    <ion-col>
+                      <ion-radio
+                        value="areas"
+                        justify="center"
+                        labelPlacement="end"
+                        >Áreas</ion-radio
+                      >
+                    </ion-col>
+                    <ion-col>
+                      <ion-radio
+                        value="trampas"
+                        justify="center"
+                        labelPlacement="end"
+                        >Trampas</ion-radio
+                      >
+                    </ion-col>
+                  </ion-row>
+                </ion-item>
+              </ion-radio-group>
+            </ion-list>
+
+            <!-- Selección de Áreas -->
+            <ion-item class="ion-margin-top" *ngIf="selectedOption === 'areas'">
+              <ion-select
+                justify="space-between"
+                required
+                aria-label="Areas"
+                interface="popover"
+                placeholder="Seleccione el Área"
+                (ionChange)="handleArea($event)"
+              >
+                <ion-select-option
+                  *ngFor="let service of servicesRnp"
+                  value="{{service.id}}"
+                  >{{service.description}}</ion-select-option
+                >
+              </ion-select>
+            </ion-item>
+
+            <!-- Selección de Grupo de Control -->
+            <ion-item
+              class="ion-margin-top"
+              *ngIf="selectedOption === 'trampas'"
+            >
+              <ion-select
+                required
+                aria-label="GrupoControl"
+                interface="popover"
+                placeholder="Grupo de Control"
+                (ionChange)="handleControl($event)"
+              >
+                <ion-select-option value="1">EDC</ion-select-option>
+                <ion-select-option value="2">EDCM</ion-select-option>
+                <ion-select-option value="3">LLN</ion-select-option>
+                <ion-select-option value="4">RNP</ion-select-option>
+                <!-- <ion-select-option value="control5">Zonas</ion-select-option> -->
+              </ion-select>
+            </ion-item>
+
+            <!-- Selección de Cinturon -->
+            <ion-item
+              class="ion-margin-top"
+              *ngIf="selectedOption === 'trampas'"
+            >
+              <ion-select
+                required
+                aria-label="GrupoControl"
+                interface="popover"
+                placeholder="Cinturon"
+                (ionChange)="handleCinturon($event)"
+              >
+                <ion-select-option
+                  *ngFor="let item of cinturones"
+                  value="{{item.subject}}"
+                  >{{item.subject}}</ion-select-option
+                >
+                <!-- <ion-select-option value="control5">Zonas</ion-select-option> -->
+              </ion-select>
+            </ion-item>
+
+            <ion-item class="ion-margin-bottom">
+              <div class="content-trampa">
+                <ion-row>
+                  <ion-col size="auto">
+                    <div class="content-trampa">
+                      <ion-item-divider orientation="center"
+                        >Trampas</ion-item-divider
+                      >
+                      <nz-space
+                        size="10"
+                        class="item-trampa ion-wrap ion-margin-top ion-magin-bottom"
+                      >
+                        <div *ngFor="let trampa of trampas">
+                          <nz-tag
+                            [nzColor]="getSelectedtask(trampa.id)?'green':'red'"
+                            class="ion-margin-bottom"
+                          >
+                            <a
+                              fill="currentColor"
+                              (click)="setSelectedTask(trampa.id)"
+                              >{{trampa.description}}
+                              <svg
+                                id="trampa-svg"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="30"
+                                height="30"
+                                fill="currentColor"
+                                class="bi bi-mailbox"
+                                viewBox="0 0 16 8"
+                              >
+                                <path
+                                  class="cls-1"
+                                  d="m4,1c-1.66,0-3,1.34-3,3v6h6v-6c0-1.66-1.34-3-3-3m0-1h8c2.21,0,4,1.79,4,4v6c0,.55-.45,1-1,1H1c-.55,0-1-.45-1-1v-6C0,1.79,1.79,0,4,0m2.65,1c.86.76,1.36,1.85,1.35,3v6h7v-6c0-1.66-1.34-3-3-3h-5.35Z"
+                                />
+                                <path
+                                  class="cls-1"
+                                  d="m4,5c-.81,0-1.46.66-1.46,1.46s.66,1.42,1.46,1.42,1.46-.62,1.46-1.42-.66-1.46-1.46-1.46Z"
+                                />
+                              </svg>
+                            </a>
+                          </nz-tag>
+                        </div>
+                        <!-- <nz-tag [nzColor]="'red'">
+                          <a fill="currentColor">
+                            <svg
+                              id="trampa-svg"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="30"
+                              height="30"
+                              fill="currentColor"
+                              class="bi bi-mailbox"
+                              viewBox="0 0 16 8"
+                            >
+                              <path
+                                class="cls-1"
+                                d="m4,1c-1.66,0-3,1.34-3,3v6h6v-6c0-1.66-1.34-3-3-3m0-1h8c2.21,0,4,1.79,4,4v6c0,.55-.45,1-1,1H1c-.55,0-1-.45-1-1v-6C0,1.79,1.79,0,4,0m2.65,1c.86.76,1.36,1.85,1.35,3v6h7v-6c0-1.66-1.34-3-3-3h-5.35Z"
+                              />
+                              <path
+                                class="cls-1"
+                                d="m4,5c-.81,0-1.46.66-1.46,1.46s.66,1.42,1.46,1.42,1.46-.62,1.46-1.42-.66-1.46-1.46-1.46Z"
+                              />
+                            </svg>
+                          </a>
+                        </nz-tag>
+                        <nz-tag [nzColor]="'volcano'">
+                          <a fill="currentColor">
+                            <svg
+                              id="trampa-svg"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="30"
+                              height="30"
+                              fill="currentColor"
+                              class="bi bi-mailbox"
+                              viewBox="0 0 16 8"
+                            >
+                              <path
+                                class="cls-1"
+                                d="m4,1c-1.66,0-3,1.34-3,3v6h6v-6c0-1.66-1.34-3-3-3m0-1h8c2.21,0,4,1.79,4,4v6c0,.55-.45,1-1,1H1c-.55,0-1-.45-1-1v-6C0,1.79,1.79,0,4,0m2.65,1c.86.76,1.36,1.85,1.35,3v6h7v-6c0-1.66-1.34-3-3-3h-5.35Z"
+                              />
+                              <path
+                                class="cls-1"
+                                d="m4,5c-.81,0-1.46.66-1.46,1.46s.66,1.42,1.46,1.42,1.46-.62,1.46-1.42-.66-1.46-1.46-1.46Z"
+                              />
+                            </svg>
+                          </a>
+                        </nz-tag>
+                        <nz-tag [nzColor]="'orange'">
+                          <a fill="currentColor">
+                            <svg
+                              id="trampa-svg"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="30"
+                              height="30"
+                              fill="currentColor"
+                              class="bi bi-mailbox"
+                              viewBox="0 0 16 8"
+                            >
+                              <path
+                                class="cls-1"
+                                d="m4,1c-1.66,0-3,1.34-3,3v6h6v-6c0-1.66-1.34-3-3-3m0-1h8c2.21,0,4,1.79,4,4v6c0,.55-.45,1-1,1H1c-.55,0-1-.45-1-1v-6C0,1.79,1.79,0,4,0m2.65,1c.86.76,1.36,1.85,1.35,3v6h7v-6c0-1.66-1.34-3-3-3h-5.35Z"
+                              />
+                              <path
+                                class="cls-1"
+                                d="m4,5c-.81,0-1.46.66-1.46,1.46s.66,1.42,1.46,1.42,1.46-.62,1.46-1.42-.66-1.46-1.46-1.46Z"
+                              />
+                            </svg>
+                          </a>
+                        </nz-tag>
+                        <nz-tag [nzColor]="'gold'">
+                          <a fill="currentColor">
+                            <svg
+                              id="trampa-svg"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="30"
+                              height="30"
+                              fill="currentColor"
+                              class="bi bi-mailbox"
+                              viewBox="0 0 16 8"
+                            >
+                              <path
+                                class="cls-1"
+                                d="m4,1c-1.66,0-3,1.34-3,3v6h6v-6c0-1.66-1.34-3-3-3m0-1h8c2.21,0,4,1.79,4,4v6c0,.55-.45,1-1,1H1c-.55,0-1-.45-1-1v-6C0,1.79,1.79,0,4,0m2.65,1c.86.76,1.36,1.85,1.35,3v6h7v-6c0-1.66-1.34-3-3-3h-5.35Z"
+                              />
+                              <path
+                                class="cls-1"
+                                d="m4,5c-.81,0-1.46.66-1.46,1.46s.66,1.42,1.46,1.42,1.46-.62,1.46-1.42-.66-1.46-1.46-1.46Z"
+                              />
+                            </svg>
+                          </a>
+                        </nz-tag> -->
+                      </nz-space>
+                    </div>
+                  </ion-col>
+                </ion-row>
+              </div>
+            </ion-item>
+
+            <!-- Selección de fecha de inicio. Debe estar DESHABILITADA -->
+            <ion-grid>
+              <ion-col size="4">
+                <ion-label class="ion-margin-top">Fecha de inicio:</ion-label>
+              </ion-col>
+              <ion-col>
+                <br />
+                <ion-item>
+                  <!-- disabled="true" -->
+                  <ion-datetime-button
+                    datetime="datetime"
+                  ></ion-datetime-button>
+                  <ion-modal [keepContentsMounted]="true">
+                    <ng-template>
+                      <ion-datetime
+                        id="datetime"
+                        showDefaultButtons="tue"
+                        (ionChange)="onStartDateChange($event)"
+                      ></ion-datetime>
+                    </ng-template>
+                  </ion-modal>
+                </ion-item>
+                <br />
+              </ion-col>
+              <ion-col>
+                <!-- Fecha de cierre -->
+                <ion-col>
+                  <ion-label class="ion-margin-top">Fecha de cierre:</ion-label>
+                </ion-col>
+                <br />
+                <ion-item>
+                  <ion-datetime-button
+                    type="light"
+                    class="datepicker md"
+                    color="primary"
+                    datetime="datetimeEnd"
+                  ></ion-datetime-button>
+                  <ion-modal [keepContentsMounted]="true">
+                    <ng-template>
+                      <ion-datetime
+                        required
+                        id="datetimeEnd"
+                        showDefaultButtons="tue"
+                        (ionChange)="onEndDateChange($event)"
+                      ></ion-datetime>
+                    </ng-template>
+                  </ion-modal>
+                </ion-item>
+              </ion-col>
+            </ion-grid>
+
+            <!-- Selección de Prioridad -->
+            <ion-item class="ion-margin-top">
+              <ion-select
+                required
+                aria-label="Prioridad"
+                interface="popover"
+                placeholder="Seleccione Prioridad"
+                (ionChange)="handlePriority($event)"
+              >
+                <ion-select-option value="1"
+                  >Prioridad(1) Bajo</ion-select-option
+                >
+                <ion-select-option value="2"
+                  >Prioridad(2) Medio</ion-select-option
+                >
+                <ion-select-option value="3"
+                  >Prioridad(3) Alto</ion-select-option
+                >
+                <ion-select-option value="4"
+                  >Prioridad(4) Urgente</ion-select-option
+                >
+                <ion-select-option value="5"
+                  >Prioridad(5) Requerido</ion-select-option
+                >
+              </ion-select>
+            </ion-item>
+
+            <!-- Selección de Responsable -->
+            <ion-item class="ion-margin-top">
+              <ion-select
+                required
+                aria-label="Responsable"
+                interface="popover"
+                placeholder="Seleccione Responsable"
+                (ionChange)="handleResponsible($event)"
+              >
+                <ion-select-option value="1">Secopla</ion-select-option>
+                <ion-select-option value="2">Cliente </ion-select-option>
+              </ion-select>
+            </ion-item>
+            <br />
+
+            <!-- Comentarios -->
+            <ion-col size="12">
+              <ion-label>Comentarios:</ion-label>
+              <textarea
+                required
+                rows="4"
+                col="30"
+                nz-input
+                [(ngModel)]="inputValue"
+              ></textarea>
+            </ion-col>
+            <br />
+            <ion-col size="12">
+              <ion-label>Acción correctiva:</ion-label>
+              <textarea
+                required
+                rows="4"
+                col="30"
+                nz-input
+                [(ngModel)]="correctiveAction"
+              ></textarea>
+            </ion-col>
+            <br />
+
+            <!-- Añadir archivos -->
+            <ion-item>
+              <ion-grid>
+                <ion-label>Añadir archivos</ion-label>
+                <ion-col size="12" class="ion-justify-content-center">
+                  <img
+                    *ngIf="evidenceImageTicket"
+                    [src]="evidenceImageTicket"
+                  />
+                  <ion-button expand="block" (click)="takePicture()"
+                    >Agregar foto</ion-button
+                  >
+                </ion-col>
+              </ion-grid>
+            </ion-item>
+
+            <!-- Mensaje para completar cada campo -->
+            <ion-item> </ion-item>
+          </nz-spin>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+
+    <ion-tab-button tab="tab1" routerLink="/tabs/tab1">
+      <ion-icon aria-hidden="true" name="calendar-clear-outline"></ion-icon>
+    </ion-tab-button>
+
+    <ion-tab-button
+      tab="modalTab"
+      id="open-modal-incidence"
+      (click)="showTicketsModal(true)"
+    >
+      <ion-icon
+        aria-hidden="true"
+        name="add-circle"
+        class="btn-circle"
+      ></ion-icon>
+    </ion-tab-button>
+
+    <ion-tab-button tab="tab2" routerLink="/tabs/tab2">
+      <ion-icon aria-hidden="true" name="reader-outline"></ion-icon>
+    </ion-tab-button>
+
+    <ion-tab-button tab="login" (click)="logout()">
+      <ion-icon aria-hidden="true" name="log-out-outline"></ion-icon>
+    </ion-tab-button>
+  </ion-tab-bar>
+</ion-tabs>

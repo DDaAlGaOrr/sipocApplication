@@ -1,0 +1,209 @@
+// .content-trampa .item-trampa {
+//     display: flex;
+//     flex-direction: row;
+//     align-content: center;
+//     justify-content: center;
+//     align-items: center;
+// }
+
+.checklist-divider {
+    margin: 10px 0;
+}
+
+:where(.css-dev-only-do-not-override-qgg3xn).ant-checkbox-checked .ant-checkbox-inner {
+    border-radius: 100px;
+    background-color: #5EB861;
+    border-color: #5EB861;
+}
+:where(.css-dev-only-do-not-override-qgg3xn).ant-checkbox .ant-checkbox-inner {
+    border-radius: 100px;
+}
+
+:where(.css-dev-only-do-not-override-qgg3xn).ant-btn-primary {
+    background-color: #0485B6;
+}
+
+ion-icon.md.icon-small {
+    margin-inline-end: 20px;
+}
+
+nz-select {
+    margin-right: 8px;
+    width: 120px;
+}
+
+// .content-trampa .item-trampa {
+//     gap: .35em;
+//     row-gap: .8em;
+// }
+
+.ant-checkbox-wrapper+.ant-checkbox-wrapper {
+    margin-left: 0 !important;
+}
+
+textarea {
+    background-color: white;
+    width: 100%;
+}
+
+.ant-tree .ant-tree-node-content-wrapper {
+    font-size: 1.1rem;
+}
+
+nz-tag.ant-tag.ant-tag-default {
+  color: rgba(109, 109, 109, 0.85);
+}
+
+a#open-modal {
+  display: flex;
+  justify-content: center;
+}
+a#open-modal-uv {
+  display: flex;
+  justify-content: center;
+}
+
+.modal-encuesta {
+  --height: 50%;
+  --border-radius: 16px;
+  --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --backdrop-opacity: var(--ion-backdrop-opacity, 0.32) !important;
+}
+
+ion-modal.modal-encuesta::part(backdrop) {
+  background: rgb(255 0 0 / 25%);
+  background: rgba(209, 213, 219);
+  /* opacity: 1; */
+}
+
+/* .options-check {
+  margin-top: 4em;
+}
+ */
+.btn-close_modal {
+  background: transparent !important;
+  border-radius: 50%;
+  color: white !important;
+}
+
+ion-modal.modal-encuesta ion-toolbar {
+  position: fixed;
+  z-index: 101;
+  --background: rgb(14 116 144);
+  --color: white;
+}
+
+.modal-encuesta {
+  backdrop-filter: brightness(0.5) !important;
+}
+
+.list-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: baseline;
+}
+
+.alert-checkbox-label.sc-ion-alert-md {
+  padding-inline-start: 40px;
+  padding-inline-end: 25px;
+  padding-bottom: 5px;
+  padding-top: 5px;
+}
+
+.alert-tappable.sc-ion-alert-md {
+  min-height: 40px;
+}
+
+.accordion-button::after {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-left: auto;
+  content: "";
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23212529'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-size: 1.25rem;
+  transition: transform .2s ease-in-out;
+}
+.accordion-button:not(.collapsed)::after {
+  transform: rotate(-180deg);
+}
+
+.accordion-body {
+  padding: 0 !important;
+}
+
+.accordion-flush .accordion-item .accordion-button, .accordion-flush .accordion-item .accordion-button.collapsed {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.ant-pagination-item,
+.ant-pagination-item, .ant-pagination-total-text {
+  display: none !important;
+}
+
+.items-checklist_content {
+  height: 180px;
+  overflow-y: scroll;
+}
+
+ion-radio {
+  border: 2px solid #e0e0e0;
+  border-radius: 5px;
+  margin-bottom: 5px;
+  padding-left: 10px;
+  transition: .2s all ease-in-out;
+}
+
+ion-radio.radio-checked {
+  border: 2px solid #0485B6;
+}
+
+.ant-progress-bg, .ant-progress-success-bg {
+  background-color: #0485B6;
+}
+
+.pagination-header {
+  display: flex;
+}
+
+ion-select {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+
+ion-modal#signature-modal {
+  --width: fit-content;
+  --min-width: 250px;
+  --height: fit-content;
+  padding: 1em .5em;
+  --border-radius: 6px;
+  --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
+}
+
+ion-modal#signature-modal .wrapper {
+  margin-bottom: 10px;
+}
+
+.task-flex{
+  display: ruby;
+}
+.task-grid{
+  display: grid;
+}
+
+.contenedor-texto {
+  max-height: 100px; 
+  overflow-y: auto;
+}
+.max-width-value{
+  max-width: 355px;
+}
+
+.product-select::part(placeholder){ opacity:1 }

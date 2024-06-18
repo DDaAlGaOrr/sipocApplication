@@ -1,0 +1,98 @@
+.btn-circle {
+    font-size: 5em !important;
+    fill: #0485B6;
+}
+
+ion-datetime-button button#time-button {
+    display: none !important;
+}
+
+.datetime-time {
+    display: none !important;
+}
+
+textarea {
+    background-color: white;
+    width: 95%;
+}
+
+.notification-badge {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+ion-badge.ion-color.ion-color-danger.md.hydrated {
+    position: absolute;
+    right: 5%;
+    top: 5%;
+}
+
+// Notification panel
+.unread-indicator {
+    background: var(--ion-color-primary);
+    width: 10px;
+    height: 10px;
+    border-radius: 100%;
+    position: absolute;
+    inset-inline-start: 12px;
+    /* top: 12px; */
+}
+
+.metadata-end-wrapper {
+    position: absolute;
+    top: 10px;
+    inset-inline-end: 10px;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+}
+
+ion-label strong {
+    display: block;
+    /* max-width: calc(100% - 60px); */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+ion-label ion-note {
+    font-size: 0.9rem;
+}
+
+ion-list.md.list-md.list-inset.hydrated {
+    margin: 0 !important;
+}
+
+ion-popover {
+    --width: 330px;
+}
+
+/* ion-datetime#datetimeEnd {
+  background-color: white !important;
+} */
+
+ion-datetime-button {
+  background-color: whitesmoke !important;
+}
+
+ion-datetime {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: rgba(var(--ion-color-rose-rgb), 0.3) 0px 10px 15px -3px;
+}
+
+ion-list.options-check {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+ion-select {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+

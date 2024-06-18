@@ -1,0 +1,42 @@
+.content-trampa .item-trampa {
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.checklist-divider {
+    margin: 10px 0;
+}
+
+:where(.css-dev-only-do-not-override-qgg3xn).ant-checkbox-checked .ant-checkbox-inner {
+    border-radius: 100px;
+    background-color: #5EB861;
+    border-color: #5EB861;
+}
+:where(.css-dev-only-do-not-override-qgg3xn).ant-checkbox .ant-checkbox-inner {
+    border-radius: 100px;
+}
+
+:where(.css-dev-only-do-not-override-qgg3xn).ant-btn-primary {
+    background-color: #0485B6;
+}
+
+ion-icon.md,
+ion-icon.ios {
+  font-size: 20px;
+  color: #858585;
+}
+ion-icon.md.icon-small {
+    margin-inline-end: 20px;
+}
+
+textarea {
+    background-color: white;
+    width: 100%;
+}
+
+form.form-evidence {
+  min-height: 260px;
+}

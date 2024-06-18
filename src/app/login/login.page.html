@@ -1,0 +1,43 @@
+<ion-content padding='true' id="bg-login">
+  <div class="login-body">
+    <div class="center logo-login">
+      <img src="../../assets/images/Logo_white.png" class="smallLogo center" />
+      <!-- <h1 class="loginHeader">Iniciar sesión</h1> -->
+    </div>
+    <div class="form-items">
+      <ion-grid>
+        <ion-row class="ion-justify-content-center">
+          <ion-col size="10">
+            <form>
+              <ion-list class="inputs-items">
+                <ion-item>
+                  <ion-input autocomplete="off" type="text" label="Nombre de Usuario" name="username"
+                    [(ngModel)]="postData.username" labelPlacement="floating" placeholder="Usuario"></ion-input>
+                  <ion-icon name="person-outline" style="font-size: 1.8rem; color: #0084B4;
+                  padding-top: 18px;"></ion-icon>
+                </ion-item>
+
+                <ion-item>
+                  <ion-input autocomplete="off" name="password" labelPlacement="floating"
+                    [(ngModel)]="postData.password" label="Contraseña" [type]="passwordFieldType"
+                    placeholder="Contraseña">
+                  </ion-input>
+                  <ion-icon name="{{showPassword ? 'eye-outline' : 'eye-off-outline'}}"
+                    (click)="togglePasswordVisibility()" style="font-size: 2rem; color: #0084B4;
+                  padding-top: 18px;"></ion-icon>
+                </ion-item>
+                <!-- <ion-item lines='none'>
+									<a routerLink='/signup'>Create Account</a>
+								</ion-item> -->
+              </ion-list>
+              <br>
+              <ion-button class="loginButton" expand="block" shape="round" (click)="loginAction()">
+                <h6 class="m-0 p-0 text-white"><strong>Entrar</strong></h6>
+              </ion-button>
+            </form>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+  </div>
+</ion-content>

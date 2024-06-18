@@ -1,0 +1,7 @@
+{
+  "name": "secoplaStart",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

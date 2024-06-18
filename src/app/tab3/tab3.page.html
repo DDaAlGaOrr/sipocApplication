@@ -1,0 +1,1566 @@
+<app-header></app-header>
+
+<!-- <ion-item button="true" detail="false" (click)="modal.dismiss()">
+  <ion-icon name="person-circle"></ion-icon>
+  <ion-label>Item 3</ion-label>
+</ion-item> -->
+<!-- Modal de Firma -->
+<ion-modal
+  [isOpen]="openSignatureModal"
+  [backdropDismiss]="false"
+  id="signature-modal"
+>
+  <ng-template>
+    <form nz-form [formGroup]="validateSignForm">
+      <nz-spin [nzSpinning]="isSpinning">
+        <div class="wrapper">
+          <ion-list>
+            <ion-item>
+              <ion-input
+                formControlName="namesignature"
+                type="text"
+                label="Nombre"
+                labelPlacement="stacked"
+                placeholder="Ingrese su nombre"
+                [(ngModel)]="nameSignatureValue"
+              ></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-input
+                formControlName="lastnamesignature"
+                type="text"
+                label="Apellido"
+                labelPlacement="stacked"
+                placeholder="Ingrese su apellido"
+                [(ngModel)]="lastNameSignatureValue"
+              ></ion-input>
+            </ion-item>
+            <ion-item class="ion-margin-bottom">
+              <ion-input
+                formControlName="emailsignature"
+                type="email"
+                label="Correo"
+                labelPlacement="stacked"
+                placeholder="Ingrese su correo"
+                required="true"
+                [(ngModel)]="emailSignatureValue"
+              ></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label class="ion-margin-bottom">Dibuje su firma:</ion-label>
+            </ion-item>
+            <app-signature-pad></app-signature-pad>
+          </ion-list>
+          <br />
+          <ion-button
+            [disabled]="!validateSignForm.valid"
+            color="primary"
+            expand="block"
+            shape="round"
+            (click)="submitSignatureForm()"
+          >
+            Terminar plan de trabajo
+          </ion-button>
+        </div>
+      </nz-spin>
+      <ion-button
+        size="default"
+        color="primary"
+        id="open-custom-dialog"
+        shape="round"
+        (click)="openSignature(false)"
+        >Cerrar ventana</ion-button
+      >
+    </form>
+  </ng-template>
+</ion-modal>
+
+<ion-content>
+  <ion-grid class="ion-margin-top">
+    <ion-row class="ion-justify-content-center">
+      <ion-col class="ion-margin-start">
+        <!-- <p class="py-0 my-0">Nombre de cliente:</p> -->
+        <h6 class="py-0 my-0 placeholder-glow">{{ client_name }}</h6>
+      </ion-col>
+    </ion-row>
+
+    <!-- <ion-row class="ion-justify-content-center">
+      <ion-col class="ion-margin-start">
+        <p class="py-0 my-0">Nombre de planta:</p>
+        <h6 class="py-0 my-0">{{ subsdiary_name }}</h6>
+      </ion-col>
+    </ion-row> -->
+
+    <ion-row class="ion-justify-content-center">
+      <ion-col class="ion-margin-start">
+        <!-- <p class="py-0 my-0">Plan de trabajo:</p> -->
+        <h6 class="py-0 my-0">{{ plan_name }}</h6>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-item>
+    <ion-segment
+      value="documental"
+      [(ngModel)]="selectedSegment"
+      (ionChange)="handleSegmentChange()"
+    >
+      <ion-segment-button value="documental">
+        <ion-label>Documental </ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="piso">
+        <ion-label>Piso</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-item>
+
+  <!-- ChecklistDocumental Modal Answer NoAplica -->
+  <ion-modal
+    [isOpen]="openDocumentModal"
+    class="modal-encuesta"
+    [backdropDismiss]="false"
+  >
+    <ng-template>
+      <ion-content>
+        <ion-toolbar>
+          <ion-buttons slot="start">
+            <ion-button
+              class="btn-close_modal"
+              color="dark"
+              shape="round"
+              (click)="setClose(false)"
+              >Cancelar</ion-button
+            >
+          </ion-buttons>
+          <ion-buttons slot="end">
+            <ion-button
+              [disabled]="!validateForm.valid"
+              class="btn-close_modal"
+              color="dark"
+              shape="round"
+              (click)="setCloseDocumentalNo(false)"
+              >Aceptar</ion-button
+            >
+          </ion-buttons>
+        </ion-toolbar>
+        <ion-list>
+          <form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()">
+            <ion-item class="mt-5">
+              <ion-col>
+                <ion-label>Comentario:</ion-label>
+                <textarea
+                  formControlName="comentario"
+                  rows="4"
+                  nz-input
+                  [(ngModel)]="reason"
+                ></textarea>
+              </ion-col>
+            </ion-item>
+
+            <ion-item class="ion-margin-bottom">
+              <ion-grid>
+                <ion-label>Añadir archivos</ion-label>
+                <ion-col size="12" class="ion-justify-content-center">
+                  <img
+                    *ngIf="evidenceImageDocumental"
+                    [src]="evidenceImageDocumental"
+                  />
+                  <ion-button expand="block" (click)="takePictureDocumental()"
+                    >Agregar foto</ion-button
+                  >
+                </ion-col>
+              </ion-grid>
+            </ion-item>
+          </form>
+        </ion-list>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <ng-container>
+    <ion-item>
+      <ion-grid>
+        <ion-row class="ion-text-end">
+          <ion-col>
+            <ion-button
+              size="default"
+              color="primary"
+              id="open-custom-dialog"
+              shape="round"
+              (click)="openSignature(true)"
+              >Enviar</ion-button
+            >
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+  </ng-container>
+
+  <ng-container *ngIf="selectedSegment === 'documental'">
+    <!-- Plantilla de Checklist Documental -->
+
+    <!-- <nz-divider nzText="Checklist Documental"></nz-divider> -->
+
+    <!-- Tipo de carpeta; digital o física -->
+    <ion-item class="contenedor-texto">
+      <ion-grid>
+        <ion-row class="ion-text-center">
+          <!-- <ion-col>
+            <span>Validación de Carpeta</span>
+          </ion-col> -->
+          <ion-col size="12">
+            <ion-item>
+              <ion-select
+                placeholder="Seleccionar"
+                [(ngModel)]="evidenceType"
+                (ionChange)="handleChangeEvidence($event)"
+              >
+                <ion-select-option value="fisica"
+                  >Carpeta Física</ion-select-option
+                >
+                <ion-select-option value="digital"
+                  >Carpeta Digital</ion-select-option
+                >
+              </ion-select>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+
+    <ion-item *ngIf="evidenceType">
+      <ion-grid>
+        <ion-row class="ion-align-items-center">
+          <ion-col>
+            <span nz-typography nzType="secondary"
+              >Paso {{ paginaActual }} de {{ totalPaginas }}
+            </span>
+          </ion-col>
+          <!-- disabled="true" -->
+        </ion-row>
+        <ion-col>
+          <nz-progress
+            [nzPercent]="porcentajeProgreso"
+            nzStatus="active"
+          ></nz-progress>
+        </ion-col>
+        <div class="">
+          <div>
+            <ion-select
+              aria-label="Pasos"
+              interface="popover"
+              placeholder="Seleccione paso"
+              [(ngModel)]="opcionSeleccionada"
+              (ionChange)="mostrarDiv()"
+            >
+              <!-- style="max-width: 60%; overflow: hidden" -->
+              <!-- <ion-select-option *ngFor="let section of sectionList;let i = index"
+                value="{{section.id}}">{{ section.item }}</ion-select-option> -->
+              <ion-select-option
+                *ngFor="let section of sectionList;let i = index"
+                [value]="i"
+                >{{ section.name}}</ion-select-option
+              >
+            </ion-select>
+          </div>
+          <div>
+            <nz-pagination
+              [nzPageIndex]="paginaActual"
+              [nzTotal]="totalPaginas * 10"
+              (nzPageIndexChange)="paginaCambiada($event); calcularPorcentajeProgreso()"
+            >
+              <!-- (nzPageIndexChange)="mostrarDiv()" -->
+            </nz-pagination>
+          </div>
+        </div>
+
+        <div *ngFor="let sectionItem of sectionListItems;let i = index ">
+          <div *ngIf="paginaActual == i + 1" class="items-checklist_content">
+            <ion-label class="ion-text-center">
+              {{sectionItem.name}}
+            </ion-label>
+            <ion-list
+              class="py-0"
+              *ngIf="sectionItem.items && sectionItem.items.length > 0; else noItems"
+            >
+              <ion-list
+                *ngFor="let item of sectionItem.items;let i = index"
+                class="ion-margin-bottom py-0"
+              >
+                <div class="list-item">
+                  <ion-item>{{item.question_description}}</ion-item>
+                  <ion-list class="options-check py-0">
+                    <!-- value="center" -->
+                    <ion-radio-group
+                      [value]="getSelectedItem(item.question_id)"
+                      [allowEmptySelection]="true"
+                    >
+                      <ion-grid>
+                        <ion-col>
+                          <ion-radio
+                            (click)="setAnswerDocumental(item.question_id,'yes')"
+                            class="py-0 max-width-value"
+                            value="yes"
+                            justify="start"
+                            labelPlacement="end"
+                            >Sí Cumple</ion-radio
+                          >
+                        </ion-col>
+                        <ion-col>
+                          <ion-radio
+                            class="py-0 max-width-value"
+                            id="open-modal-documental"
+                            value="no"
+                            (click)="setOpen(true,item.question_id,i)"
+                            justify="start"
+                            labelPlacement="end"
+                            >No Cumple</ion-radio
+                          >
+                        </ion-col>
+
+                        <ion-col>
+                          <ion-radio
+                            *ngIf="sectionItem?.extraAnswer === true"
+                            class="py-0 max-width-value"
+                            id="open-modal-documental"
+                            value="extra"
+                            justify="start"
+                            labelPlacement="end"
+                            (click)="setAnswerDocumental(item.question_id,'extra', sectionItem.extraAnswerDescription)"
+                            >{{ sectionItem.extraAnswerDescription }}</ion-radio
+                          >
+                        </ion-col>
+                      </ion-grid>
+                    </ion-radio-group>
+                  </ion-list>
+                </div>
+              </ion-list>
+            </ion-list>
+            <ng-template #noItems class="list-item">
+              <ion-list>
+                <ion-list
+                  *ngIf="sectionItem.items.subsection"
+                  class="ion-margin-bottom py-0"
+                >
+                  <ion-list
+                    *ngIf="sectionItem.name ==='INFORMACIÓN DE LOS PRODUCTOS UTILIZADOS'"
+                  >
+                    <ion-list class="ion-margin-bottom"> </ion-list>
+                    <div
+                      class="list-item"
+                      *ngFor="let product of productsDocumntalChecklist;let i = index"
+                    >
+                      <h6>{{product}}:</h6>
+
+                      <ion-item>
+                        <ion-select
+                          aria-label="Fruit"
+                          placeholder="Opciones"
+                          [multiple]="true"
+                          (ionChange)="getSelectedOptionsProducts($event,i)"
+                          class="product-select"
+                          [selectedText]="selectedTexts[i]"
+                        >
+                          <ion-select-option
+                            *ngFor="let item of sectionItem.items.items"
+                            value="{{item.question_id}}"
+                            >{{item.question_description}}</ion-select-option
+                          >
+                        </ion-select>
+                      </ion-item>
+                      <br />
+                    </div>
+                  </ion-list>
+                  <ion-list
+                    *ngIf="sectionItem.name ==='CAPACITACIONES Y COMPETENCIAS DEL(OS) TÉCNICO(S) RESPONSABLE(S)'"
+                  >
+                    <ion-list class="ion-margin-bottom"> </ion-list>
+                    <div
+                      class="list-item"
+                      *ngFor="let product of techniciansDocumntalChecklist; let i = index"
+                    >
+                      <h6>{{product}}:</h6>
+
+                      <ion-item>
+                        <ion-select
+                          aria-label="Fruit"
+                          placeholder="Opciones"
+                          [multiple]="true"
+                          (ionChange)="getSelectedOptionsTechnicians($event,i)"
+                          [selectedText]="selectedTextsTechnicians[i]"
+                        >
+                          <ion-select-option
+                            *ngFor="let item of sectionItem.items.items"
+                            value="{{item.question_id}}"
+                            >{{item.question_description}}</ion-select-option
+                          >
+                          <!-- <ion-select-option value="RS"
+                            >Conocer ó DC3</ion-select-option
+                          >
+                          <ion-select-option value="HS">MIP</ion-select-option>
+                          <ion-select-option value="FT">BPM</ion-select-option>
+                          <ion-select-option value="EC"
+                            >Metodos y equipos de aplicación</ion-select-option
+                          >
+                          <ion-select-option value="EC"
+                            >Seguridad en el trabajo y manejo de
+                            quimicos</ion-select-option
+                          >
+                          <ion-select-option value="EC"
+                            >Sistema de reporteo</ion-select-option
+                          > -->
+                        </ion-select>
+                      </ion-item>
+                      <br />
+                    </div>
+                  </ion-list>
+                </ion-list>
+              </ion-list>
+              <p>No hay elementos disponibles.</p>
+            </ng-template>
+          </div>
+        </div>
+      </ion-grid>
+    </ion-item>
+  </ng-container>
+
+  <ng-container *ngIf="selectedSegment === 'piso'">
+    <ion-item-divider class="ion-margin-top">
+      <ion-label class="ion-text-center"> Trampas </ion-label>
+    </ion-item-divider>
+    <ion-row class="ion-justify-content-center ion-margin-bottom">
+      <!-- <nz-tag [nzColor]="'default'">No programadas</nz-tag> -->
+      <nz-tag [nzColor]="'green'">Revisadas</nz-tag>
+      <nz-tag [nzColor]="'red'">Por revisar</nz-tag>
+    </ion-row>
+
+    <ion-grid *ngIf="typeProject === 'project'; else uvTask">
+      <ion-list>
+        <div class="accordion accordion-flush">
+          <div class="accordion-item">
+            <h2 class="accordion-header" (click)="toggleItem(1)">
+              <button
+                class="accordion-button px-2"
+                [ngClass]="{'collapsed': !isItemOpen(1)}"
+                data-bs-toggle="collapse"
+              >
+                <ion-grid>
+                  <ion-row
+                    class="ion-align-items-center ion-justify-content-between"
+                  >
+                    <ion-row size="6">
+                      <h5 class="py-0 my-0">Trampas - EDC</h5>
+                    </ion-row>
+                    <ion-col size="6" class="text-center">
+                      <h5 class="py-0 my-0 ion-text-end">
+                        Total: {{ formattedTasks[0]?.edc?.total_tasks || 0 }}
+                      </h5>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+              </button>
+            </h2>
+            <ion-item *ngIf="isItemOpen(1)">
+              <div class="accordion-body">
+                <ion-row>
+                  <ion-col size="auto">
+                    <div class="content-trampa">
+                      <ion-row>
+                        <ion-col size="auto">
+                          <div class="content-trampa">
+                            <nz-space
+                              size="10"
+                              class="item-trampa ion-wrap ion-margin-top ion-magin-bottom task-grid"
+                            >
+                              <div
+                                *ngFor="let cinturon of formattedTasks[0].edc.cinturones"
+                                class="task-flex"
+                              >
+                                <h2 class="ion-margin-top">
+                                  <ion-item-divider class="ion-margin-top">
+                                    <ion-label class="ion-text-center">
+                                      {{cinturon}}
+                                    </ion-label>
+                                  </ion-item-divider>
+                                </h2>
+                                <div
+                                  *ngFor="let task of formattedTasks[0].edc.area_service[cinturon]"
+                                >
+                                  <nz-tag
+                                    [nzColor]="getSelectedProjectItem(task.id) ? 'green':'red'"
+                                  >
+                                    <a
+                                      id="open-modal"
+                                      fill="currentColor"
+                                      (click)="openModalTask(task.id,task.name,'EDC')"
+                                    >
+                                      <!-- [attr.disabled]="getSelectedProjectItem(task.id) ? true : null" -->
+                                      <!-- (click)="!getSelectedProjectItem(task.id) ? openModalTask(task.id,task.name,'EDC') : null" -->
+                                      <svg
+                                        id="trampa-svg"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="30"
+                                        height="30"
+                                        fill="currentColor"
+                                        class="bi bi-mailbox"
+                                        viewBox="0 0 16 8"
+                                      >
+                                        <path
+                                          class="cls-1"
+                                          d="m4,1c-1.66,0-3,1.34-3,3v6h6v-6c0-1.66-1.34-3-3-3m0-1h8c2.21,0,4,1.79,4,4v6c0,.55-.45,1-1,1H1c-.55,0-1-.45-1-1v-6C0,1.79,1.79,0,4,0m2.65,1c.86.76,1.36,1.85,1.35,3v6h7v-6c0-1.66-1.34-3-3-3h-5.35Z"
+                                        />
+                                        <path
+                                          class="cls-1"
+                                          d="m4,5c-.81,0-1.46.66-1.46,1.46s.66,1.42,1.46,1.42,1.46-.62,1.46-1.42-.66-1.46-1.46-1.46Z"
+                                        />
+                                      </svg>
+                                    </a>
+                                    <span nz-typography nzType="secondary"
+                                      ># {{ task.name }}</span
+                                    >
+                                  </nz-tag>
+                                </div>
+                              </div>
+                            </nz-space>
+                          </div>
+                        </ion-col>
+                      </ion-row>
+                    </div>
+                  </ion-col>
+                </ion-row>
+              </div>
+            </ion-item>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header" (click)="toggleItem(2)">
+              <button
+                class="accordion-button px-2"
+                [ngClass]="{'collapsed': !isItemOpen(2)}"
+                data-bs-toggle="collapse"
+              >
+                <ion-grid>
+                  <ion-row
+                    class="ion-align-items-center ion-justify-content-between"
+                  >
+                    <ion-row size="6">
+                      <h5 class="py-0 my-0">Trampas - EDCM</h5>
+                    </ion-row>
+                    <ion-col size="6" class="text-center">
+                      <h5 class="py-0 my-0 ion-text-end">
+                        Total: {{ formattedTasks[0]?.edcm?.total_tasks || 0 }}
+                      </h5>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+              </button>
+            </h2>
+            <ion-item *ngIf="isItemOpen(2)">
+              <div class="accordion-body">
+                <ion-row>
+                  <ion-col size="auto">
+                    <div class="content-trampa">
+                      <ion-row>
+                        <ion-col size="auto">
+                          <div class="content-trampa">
+                            <nz-space
+                              size="10"
+                              class="item-trampa ion-wrap ion-margin-top ion-magin-bottom"
+                            >
+                              <div
+                                *ngFor="let cinturon of formattedTasks[0].edcm.cinturones"
+                                class="task-flex"
+                              >
+                                <h2 class="ion-margin-top">
+                                  <ion-item-divider class="ion-margin-top">
+                                    <ion-label class="ion-text-center">
+                                      {{cinturon}}
+                                    </ion-label>
+                                  </ion-item-divider>
+                                </h2>
+                                <div
+                                  *ngFor="let task of formattedTasks[0].edcm.area_service[cinturon]"
+                                >
+                                  <nz-tag
+                                    [nzColor]="getSelectedProjectItem(task.id) ? 'green':'red'"
+                                  >
+                                    <a
+                                      id="open-modal"
+                                      fill="currentColor"
+                                      (click)="openModalTask(task.id,task.name,'EDCM')"
+                                    >
+                                      <!-- [attr.disabled]="getSelectedProjectItem(task.id) ? true : null" -->
+                                      <!-- (click)="!getSelectedProjectItem(task.id) ? openModalTask(task.id,task.name,'EDCM') : null" -->
+                                      <svg
+                                        id="trampa-svg"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="30"
+                                        height="30"
+                                        fill="currentColor"
+                                        class="bi bi-mailbox"
+                                        viewBox="0 0 16 8"
+                                      >
+                                        <path
+                                          class="cls-1"
+                                          d="m4,1c-1.66,0-3,1.34-3,3v6h6v-6c0-1.66-1.34-3-3-3m0-1h8c2.21,0,4,1.79,4,4v6c0,.55-.45,1-1,1H1c-.55,0-1-.45-1-1v-6C0,1.79,1.79,0,4,0m2.65,1c.86.76,1.36,1.85,1.35,3v6h7v-6c0-1.66-1.34-3-3-3h-5.35Z"
+                                        />
+                                        <path
+                                          class="cls-1"
+                                          d="m4,5c-.81,0-1.46.66-1.46,1.46s.66,1.42,1.46,1.42,1.46-.62,1.46-1.42-.66-1.46-1.46-1.46Z"
+                                        />
+                                      </svg>
+                                    </a>
+                                    <span nz-typography nzType="secondary"
+                                      ># {{ task.name }}</span
+                                    >
+                                  </nz-tag>
+                                </div>
+                              </div>
+                            </nz-space>
+                          </div>
+                        </ion-col>
+                      </ion-row>
+                    </div>
+                  </ion-col>
+                </ion-row>
+              </div>
+            </ion-item>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header" (click)="toggleItem(3)">
+              <button
+                class="accordion-button px-2"
+                [ngClass]="{'collapsed': !isItemOpen(3)}"
+                data-bs-toggle="collapse"
+              >
+                <ion-grid>
+                  <ion-row
+                    class="ion-align-items-center ion-justify-content-between"
+                  >
+                    <ion-row size="6">
+                      <h5 class="py-0 my-0">Trampas - LLN</h5>
+                    </ion-row>
+                    <ion-col size="6" class="text-center">
+                      <h5 class="py-0 my-0 ion-text-end">
+                        Total: {{ formattedTasks[0]?.lln?.total_tasks || 0 }}
+                      </h5>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+              </button>
+            </h2>
+            <ion-item *ngIf="isItemOpen(3)">
+              <div class="accordion-body">
+                <ion-row>
+                  <ion-col size="auto">
+                    <div class="content-trampa">
+                      <ion-row>
+                        <ion-col size="auto">
+                          <div class="content-trampa">
+                            <nz-space
+                              size="10"
+                              class="item-trampa ion-wrap ion-margin-top ion-magin-bottom"
+                            >
+                              <div
+                                *ngFor="let cinturon of formattedTasks[0].lln.cinturones"
+                                class="task-flex"
+                              >
+                                <h2 class="ion-margin-top">
+                                  <ion-item-divider class="ion-margin-top">
+                                    <ion-label class="ion-text-center">
+                                      {{cinturon}}
+                                    </ion-label>
+                                  </ion-item-divider>
+                                </h2>
+
+                                <div
+                                  *ngFor="let task of formattedTasks[0].lln.area_service[cinturon]"
+                                >
+                                  <nz-tag
+                                    [nzColor]="getSelectedProjectItem(task.id) ? 'green':'red'"
+                                  >
+                                    <a
+                                      id="open-modal"
+                                      fill="currentColor"
+                                      (click)="openModalTask(task.id,task.name,'LLN')"
+                                    >
+                                      <!-- [attr.disabled]="getSelectedProjectItem(task.id) ? true : null" -->
+                                      <!-- (click)="!getSelectedProjectItem(task.id) ? openModalTask(task.id,task.name,'LLN') : null" -->
+                                      <svg
+                                        id="trampa-svg"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="30"
+                                        height="30"
+                                        fill="currentColor"
+                                        class="bi bi-mailbox"
+                                        viewBox="0 0 16 8"
+                                      >
+                                        <path
+                                          class="cls-1"
+                                          d="m4,1c-1.66,0-3,1.34-3,3v6h6v-6c0-1.66-1.34-3-3-3m0-1h8c2.21,0,4,1.79,4,4v6c0,.55-.45,1-1,1H1c-.55,0-1-.45-1-1v-6C0,1.79,1.79,0,4,0m2.65,1c.86.76,1.36,1.85,1.35,3v6h7v-6c0-1.66-1.34-3-3-3h-5.35Z"
+                                        />
+                                        <path
+                                          class="cls-1"
+                                          d="m4,5c-.81,0-1.46.66-1.46,1.46s.66,1.42,1.46,1.42,1.46-.62,1.46-1.42-.66-1.46-1.46-1.46Z"
+                                        />
+                                      </svg>
+                                    </a>
+                                    <span nz-typography nzType="secondary"
+                                      ># {{ task.name }}</span
+                                    >
+                                  </nz-tag>
+                                </div>
+                              </div>
+                            </nz-space>
+                          </div>
+                        </ion-col>
+                      </ion-row>
+                    </div>
+                  </ion-col>
+                </ion-row>
+              </div>
+            </ion-item>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header" (click)="toggleItem(4)">
+              <button
+                class="accordion-button px-2"
+                [ngClass]="{'collapsed': !isItemOpen(4)}"
+                data-bs-toggle="collapse"
+              >
+                <ion-grid>
+                  <ion-grid>
+                    <ion-row
+                      class="ion-align-items-center ion-justify-content-between"
+                    >
+                      <ion-row size="6">
+                        <h5 class="py-0 my-0">Trampas - RNP</h5>
+                      </ion-row>
+                      <ion-col size="6" class="text-center">
+                        <h5 class="py-0 my-0 ion-text-end">
+                          Total: {{ formattedTasks[0]?.rnp?.total_tasks || 0 }}
+                        </h5>
+                      </ion-col>
+                    </ion-row>
+                  </ion-grid>
+                </ion-grid>
+              </button>
+            </h2>
+            <ion-item *ngIf="isItemOpen(4)">
+              <div class="accordion-body">
+                <ion-row>
+                  <ion-col size="auto">
+                    <div class="content-trampa">
+                      <ion-row>
+                        <ion-col size="auto">
+                          <div class="content-trampa">
+                            <nz-space
+                              size="10"
+                              class="item-trampa ion-wrap ion-margin-top ion-magin-bottom"
+                            >
+                              <div
+                                *ngFor="let cinturon of formattedTasks[0].rnp.cinturones"
+                                class="task-flex"
+                              >
+                                <h2 class="ion-margin-top">
+                                  <ion-item-divider class="ion-margin-top">
+                                    <ion-label class="ion-text-center">
+                                      {{cinturon}}
+                                    </ion-label>
+                                  </ion-item-divider>
+                                </h2>
+                                <div
+                                  *ngFor="let task of formattedTasks[0].rnp.area_service[cinturon]"
+                                >
+                                  <nz-tag
+                                    [nzColor]="getSelectedProjectItem(task.id) ? 'green':'red'"
+                                  >
+                                    <a
+                                      id="open-modal"
+                                      fill="currentColor"
+                                      (click)="openModalTask(task.id,task.name,'RNP')"
+                                    >
+                                      <!-- [attr.disabled]="getSelectedProjectItem(task.id) ? true : null" -->
+                                      <!-- (click)="!getSelectedProjectItem(task.id) ? openModalTask(task.id,task.name,'RNP') : null" -->
+                                      <svg
+                                        id="trampa-svg"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="30"
+                                        height="30"
+                                        fill="currentColor"
+                                        class="bi bi-mailbox"
+                                        viewBox="0 0 16 8"
+                                      >
+                                        <path
+                                          class="cls-1"
+                                          d="m4,1c-1.66,0-3,1.34-3,3v6h6v-6c0-1.66-1.34-3-3-3m0-1h8c2.21,0,4,1.79,4,4v6c0,.55-.45,1-1,1H1c-.55,0-1-.45-1-1v-6C0,1.79,1.79,0,4,0m2.65,1c.86.76,1.36,1.85,1.35,3v6h7v-6c0-1.66-1.34-3-3-3h-5.35Z"
+                                        />
+                                        <path
+                                          class="cls-1"
+                                          d="m4,5c-.81,0-1.46.66-1.46,1.46s.66,1.42,1.46,1.42,1.46-.62,1.46-1.42-.66-1.46-1.46-1.46Z"
+                                        />
+                                      </svg>
+                                    </a>
+                                    <span nz-typography nzType="secondary"
+                                      ># {{ task.name }}</span
+                                    >
+                                  </nz-tag>
+                                </div>
+                              </div>
+                            </nz-space>
+                          </div>
+                        </ion-col>
+                      </ion-row>
+                    </div>
+                  </ion-col>
+                </ion-row>
+              </div>
+            </ion-item>
+          </div>
+        </div>
+      </ion-list>
+    </ion-grid>
+    <ng-template #uvTask>
+      <ion-row>
+        <ion-col size="auto">
+          <div class="content-trampa">
+            <ion-row>
+              <ion-col size="auto">
+                <div class="content-trampa">
+                  <nz-space
+                    size="10"
+                    class="item-trampa ion-wrap ion-margin-top ion-magin-bottom"
+                  >
+                    <div
+                      *ngFor="let group of uvTotalTasks | keyvalue"
+                      class="task-flex"
+                    >
+                      <h2>Cinturon {{ group.key }}</h2>
+                      <!-- <div>{{group.value}}</div> -->
+                      <ion-item *ngFor="let task of group.value">
+                        <nz-tag
+                          [nzColor]="getSelectedProjectItem(task.id) ? 'green':'purple'"
+                        >
+                          <a
+                            id="open-modal-uv"
+                            fill="currentColor"
+                            (click)="!getSelectedProjectItem(task.id) ? openSelectUvMeasure(true,task.id) : null"
+                          >
+                            <svg
+                              id="trampa-svg"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="30"
+                              height="30"
+                              fill="currentColor"
+                              class="bi bi-mailbox"
+                              viewBox="0 0 16 8"
+                            >
+                              <path
+                                class="cls-1"
+                                d="m4,1c-1.66,0-3,1.34-3,3v6h6v-6c0-1.66-1.34-3-3-3m0-1h8c2.21,0,4,1.79,4,4v6c0,.55-.45,1-1,1H1c-.55,0-1-.45-1-1v-6C0,1.79,1.79,0,4,0m2.65,1c.86.76,1.36,1.85,1.35,3v6h7v-6c0-1.66-1.34-3-3-3h-5.35Z"
+                              />
+                              <path
+                                class="cls-1"
+                                d="m4,5c-.81,0-1.46.66-1.46,1.46s.66,1.42,1.46,1.42,1.46-.62,1.46-1.42-.66-1.46-1.46-1.46Z"
+                              />
+                            </svg>
+                          </a>
+                          <span nz-typography nzType="secondary"
+                            ># {{ task.description }}</span
+                          >
+                        </nz-tag>
+                      </ion-item>
+                    </div>
+                  </nz-space>
+                </div>
+              </ion-col>
+            </ion-row>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ng-template>
+    <ion-grid *ngIf="typeProject === 'task_sup'">
+      <div>
+        <ion-button (click)="modalAddMinuteItem(true)" [strong]="true"
+          >Agregar elemento</ion-button
+        >
+      </div>
+      <nz-table #basicTable>
+        <thead>
+          <tr>
+            <th>Compromisos, Acuerdos y Conclusiones</th>
+            <th>Responsable</th>
+            <th>Fecha</th>
+            <th>Estatus</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of minuteTable">
+            <td>{{item.taskAgreement}}</td>
+            <td>{{item.taskResponsable}}</td>
+            <td>{{item.minuteDate}}</td>
+            <td>{{item.taskMinuteStatus}}</td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </ion-grid>
+
+    <!-- Trampa Modal Answer NoAplica -->
+    <ion-modal
+      [isOpen]="modalTaskAnswerNo"
+      class="modal-encuesta"
+      [backdropDismiss]="false"
+    >
+      <ng-template>
+        <ion-content>
+          <ion-toolbar>
+            <ion-buttons slot="start">
+              <ion-button
+                class="btn-close_modal"
+                color="dark"
+                shape="round"
+                (click)="cancel()"
+                >Cancelar</ion-button
+              >
+            </ion-buttons>
+            <ion-buttons slot="end">
+              <ion-button
+                [disabled]="!validateForm.valid"
+                class="btn-close_modal"
+                color="dark"
+                shape="round"
+                (click)="setNoTaskAnswer(false)"
+                >Aceptar</ion-button
+              >
+            </ion-buttons>
+          </ion-toolbar>
+          <ion-list>
+            <form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()">
+              <ion-item class="mt-5">
+                <ion-col>
+                  <ion-label>Comentario:</ion-label>
+                  <textarea
+                    formControlName="comentario"
+                    rows="4"
+                    nz-input
+                    [(ngModel)]="taskReason"
+                  ></textarea>
+                  <ion-item>
+                    <ion-col size="12">
+                      <ion-label>Acción correctiva:</ion-label>
+                      <ion-select
+                        justify="space-between"
+                        required
+                        aria-label="Acción correctiva"
+                        interface="popover"
+                        placeholder="Seleccione acción correctiva"
+                        (ionChange)="handleCorrectiveAction($event)"
+                      >
+                        <!-- [(ngModel)]="correctiveTaskAction" -->
+                        <!-- <ion-select-option
+                          *ngFor="let service of servicesRnp"
+                          value="{{service.id}}"
+                          >{{service.description}}</ion-select-option
+                        > -->
+                        <ion-select-option value="1"
+                          >Requiere reemplazo</ion-select-option
+                        >
+                        <ion-select-option value="2"
+                          >Se recomiendo atender para evitar
+                          plaga</ion-select-option
+                        >
+                        <ion-select-option value="3"
+                          >Se recomienda atender para evitar ingreso de fauna
+                          nociva</ion-select-option
+                        >
+                      </ion-select>
+                    </ion-col>
+                  </ion-item>
+                  <ion-checkbox (click)="setTaskResponsiveValue($event)">
+                    No cumple por cuestion del cliente
+                  </ion-checkbox>
+                </ion-col>
+              </ion-item>
+
+              <ion-item class="ion-margin-bottom">
+                <ion-grid>
+                  <ion-label>Añadir archivos</ion-label>
+                  <ion-col size="12" class="ion-justify-content-center">
+                    <img *ngIf="evidenceImageTask" [src]="evidenceImageTask" />
+                    <ion-button expand="block" (click)="takePicture()"
+                      >Agregar foto</ion-button
+                    >
+                  </ion-col>
+                </ion-grid>
+              </ion-item>
+            </form>
+          </ion-list>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+
+    <ion-modal [isOpen]="isSelectUvMeasure">
+      <ng-template>
+        <ion-content>
+          <ion-header>
+            <ion-toolbar>
+              <ion-buttons slot="start">
+                <ion-button (click)="openSelectUvMeasure(false,'')"
+                  >Cancelar</ion-button
+                >
+              </ion-buttons>
+              <ion-buttons slot="end">
+                <ion-button (click)="setUvChecklist()" [strong]="true"
+                  >Confirmar</ion-button
+                >
+              </ion-buttons>
+            </ion-toolbar>
+          </ion-header>
+          <ion-list>
+            <div>
+              <ion-item class="ion-margin-top">
+                <ion-select
+                  required
+                  aria-label="Estado"
+                  interface="popover"
+                  placeholder="Estado de la trampa"
+                  (ionChange)="handleTaskStatus($event)"
+                  [(ngModel)]="taskStatus"
+                >
+                  <ion-select-option value="10">
+                    Equipo Extraviado
+                  </ion-select-option>
+                  <ion-select-option value="11">
+                    Equipo Dañado
+                  </ion-select-option>
+                  <ion-select-option value="12">
+                    Cambio por tiempo de vida
+                  </ion-select-option>
+                  <ion-select-option value="13">
+                    Equipo Oculto
+                  </ion-select-option>
+                  <ion-select-option value="14"> Funcional </ion-select-option>
+                </ion-select>
+              </ion-item>
+            </div>
+            <ion-select
+              placeholder="Selecciona un medidor"
+              (ionChange)="getSelectedUvChecklist($event)"
+            >
+              <ion-select-option value="35"
+                >MEDICION DE LUZ UV</ion-select-option
+              >
+              <ion-select-option value="36"
+                >MEDIDOR PEST WEST</ion-select-option
+              >
+              <ion-select-option value="37"
+                >UV Tester 36 W-PL</ion-select-option
+              >
+              <ion-select-option value="38"
+                >UV Tester 15W-T8_18W-T8_20 W</ion-select-option
+              >
+              <ion-select-option value="39">UV Tester 15W-T5</ion-select-option>
+            </ion-select>
+          </ion-list>
+          <ion-list>
+            <ion-label> {{checklistMeasureSelected}} </ion-label>
+          </ion-list>
+          <ion-item>
+            <ion-col>
+              <ion-col *ngIf="currentUvChecklist.length > 0">
+                <ion-item>{{uv_checklist_name}}</ion-item>
+                <div *ngFor="let checklist of currentUvChecklist">
+                  <ion-radio
+                    (click)="answerTaskUvChecklist(checklist.value,uv_question_id)"
+                    justify="start"
+                    labelPlacement="end"
+                    value="checklist.value"
+                    >{{checklist.question}}</ion-radio
+                  >
+                </div>
+                <textarea
+                  rows="1"
+                  nz-input
+                  placeholder="Comentario"
+                  [(ngModel)]="uvDescription"
+                ></textarea>
+              </ion-col>
+            </ion-col>
+          </ion-item>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+
+    <!-- Modal Trampas Section -->
+    <ion-modal
+      [isOpen]="openTaskModal"
+      trigger="open-modal"
+      (willDismiss)="onWillDismiss($event)"
+    >
+      <ng-template>
+        <ion-header>
+          <ion-toolbar>
+            <ion-buttons slot="start">
+              <ion-button (click)="closeTaskModal()">Cancelar</ion-button>
+            </ion-buttons>
+            <ion-buttons slot="end">
+              <ion-button (click)="confirm()" [strong]="true"
+                >Enviar</ion-button
+              >
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content>
+          <ion-grid>
+            <ng-container>
+              <ng-container>
+                <ion-grid class="ion-margin-top"> </ion-grid>
+
+                <nz-divider nzText="Checklist de Piso"></nz-divider>
+                <div *ngIf="task_control !== 'RNP'; else rnpService">
+                  <ion-row>
+                    <div>
+                      <ion-col>
+                        <p class="py-0 my-0">Numero de trampa:</p>
+                        <ion-title>#{{task_number}}</ion-title>
+                        <p class="py-0 my-0">Tipo de control:</p>
+                        <ion-title>{{task_control}}</ion-title>
+                        <div>
+                          <p class="py-0 my-0">Estado de la trampa</p>
+                          <ion-item class="ion-margin-top">
+                            <ion-select
+                              required
+                              aria-label="Estado"
+                              interface="popover"
+                              placeholder="Estado de la trampa"
+                              (ionChange)="handleTaskStatus($event)"
+                              [(ngModel)]="taskStatus"
+                            >
+                              <ion-select-option value="10">
+                                Equipo Extraviado
+                              </ion-select-option>
+                              <ion-select-option value="11">
+                                Equipo Dañado
+                              </ion-select-option>
+                              <ion-select-option value="12">
+                                Cambio por tiempo de vida
+                              </ion-select-option>
+                              <ion-select-option value="13">
+                                Equipo Oculto
+                              </ion-select-option>
+                              <ion-select-option value="14">
+                                Funcional
+                              </ion-select-option>
+                            </ion-select>
+                          </ion-item>
+                        </div>
+                      </ion-col>
+                      <ion-item>
+                        <ion-col>
+                          <ion-text
+                            >Lista de verificación de ckecklist por
+                            trampa</ion-text
+                          >
+                        </ion-col>
+                      </ion-item>
+                    </div>
+                  </ion-row>
+                  <ion-list
+                    *ngFor="let item of checklist;let i = index"
+                    class="ion-margin-bottom"
+                  >
+                    <div class="list-item">
+                      <ion-item>{{item.description}}</ion-item>
+                      <ion-list class="options-check">
+                        <ion-radio-group
+                          [value]="getSelectedTaskItem(item.id)"
+                          [allowEmptySelection]="true"
+                        >
+                          <ion-item>
+                            <ion-col>
+                              <ion-col>
+                                <ion-radio
+                                  (click)="answerTaskYes(item.id)"
+                                  justify="start"
+                                  labelPlacement="end"
+                                  value="yes"
+                                  >Sí Cumple</ion-radio
+                                >
+                              </ion-col>
+                              <ion-col>
+                                <ion-radio
+                                  id="open-modal"
+                                  (click)="showModalTaskAnswerNo(true,item.id,i)"
+                                  justify="start"
+                                  value="no"
+                                  labelPlacement="end"
+                                  >No Cumple</ion-radio
+                                >
+                              </ion-col>
+                            </ion-col>
+                          </ion-item>
+                        </ion-radio-group>
+                      </ion-list>
+                    </div>
+                  </ion-list>
+                </div>
+                <ng-template #rnpService>
+                  <!-- <ion-list class="options-check">
+                    <ion-item>
+                      <ion-col>
+                        <ion-button
+                          [strong]="true"
+                          id="open-modal-incidence"
+                          (click)="showTicketsModal(true)"
+                          >Generar incidencia</ion-button
+                        >
+                      </ion-col>
+                    </ion-item>
+                  </ion-list> -->
+                  <ion-list
+                    *ngFor="let item of checklist;let i = index"
+                    class="ion-margin-bottom"
+                  >
+                    <div class="list-item">
+                      <ion-item>{{item.description}}</ion-item>
+                      <ion-list class="options-check">
+                        <ion-radio-group
+                          [value]="getSelectedTaskItem(item.id)"
+                          [allowEmptySelection]="true"
+                        >
+                          <ion-item>
+                            <ion-col>
+                              <ion-col>
+                                <ion-radio
+                                  (click)="answerTaskYes(item.id)"
+                                  justify="start"
+                                  labelPlacement="end"
+                                  value="yes"
+                                  >sin incidencia</ion-radio
+                                >
+                              </ion-col>
+                              <ion-col>
+                                <ion-radio
+                                  id="open-modal"
+                                  (click)="showModalTaskAnswerNo(true,item.id,i,true)"
+                                  justify="start"
+                                  value="no"
+                                  labelPlacement="end"
+                                  >Generar incidencia</ion-radio
+                                >
+                              </ion-col>
+                            </ion-col>
+                          </ion-item>
+                        </ion-radio-group>
+                      </ion-list>
+                    </div>
+                  </ion-list>
+                </ng-template>
+              </ng-container>
+            </ng-container>
+          </ion-grid>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+  </ng-container>
+  <ng-container>
+    <ion-modal [isOpen]="isOpenTicketsModal">
+      <ng-template>
+        <ion-header>
+          <ion-toolbar>
+            <ion-buttons slot="start">
+              <ion-button (click)="showTicketsModal(false)"
+                >Cancelar</ion-button
+              >
+            </ion-buttons>
+            <ion-buttons slot="end">
+              <ion-button (click)="createTicket()" [strong]="true"
+                >Confirmar</ion-button
+              >
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content class="ion-padding">
+          <nz-spin [nzSpinning]="isTicketSpinning">
+            <ion-title class="ion-text-center">Nueva Incidencia</ion-title>
+            <textarea
+              rows="1"
+              nz-input
+              placeholder="Titulo de la incidencia"
+              [(ngModel)]="titleTicket"
+            ></textarea>
+            <!-- [(ngModel)]="titleTicket" -->
+            <!-- Selección de Cliente -->
+            <ion-item class="ion-margin-top">
+              <ion-select
+                required
+                aria-label="Cliente"
+                interface="popover"
+                placeholder="Seleccione Cliente"
+                [(ngModel)]="ticketClientSelectId"
+              >
+                <ion-select-option value="{{ ticketClientSelectId }}">
+                  {{ ticketClientSelect }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <!-- Selección de Planta -->
+            <ion-item class="ion-margin-top">
+              <ion-select
+                required
+                aria-label="Planta"
+                interface="popover"
+                placeholder="Seleccione Planta"
+                [(ngModel)]="ticketSubsidiarySelectid"
+              >
+                <ion-select-option value="{{ ticketSubsidiarySelectid }}">
+                  {{ ticketSubsidiarySelect }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <!-- Selección de Áreas -->
+            <!-- *ngIf="selectedOption === 'areas'" -->
+            <ion-item class="ion-margin-top">
+              <ion-select
+                justify="space-between"
+                required
+                aria-label="Areas"
+                interface="popover"
+                placeholder="Seleccione el área"
+                [(ngModel)]="ticketAreaSelectid"
+              >
+                <ion-select-option value="{{ ticketAreaSelectid }}">
+                  {{ ticketAreaSelect }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <!-- Selección de fecha de inicio. Debe estar DESHABILITADA -->
+            <ion-grid>
+              <ion-col size="4">
+                <ion-label class="ion-margin-top">Fecha de inicio:</ion-label>
+              </ion-col>
+              <ion-col>
+                <br />
+                <ion-item>
+                  <!-- disabled="true" -->
+                  <ion-datetime-button
+                    datetime="datetime"
+                  ></ion-datetime-button>
+                  <ion-modal [keepContentsMounted]="true">
+                    <ng-template>
+                      <!-- [(ngModel)]="startDate" -->
+                      <ion-datetime
+                        id="datetime"
+                        (ionChange)="onStartDateChange($event)"
+                        showDefaultButtons="tue"
+                      ></ion-datetime>
+                    </ng-template>
+                  </ion-modal>
+                </ion-item>
+                <br />
+              </ion-col>
+              <ion-col>
+                <!-- Fecha de cierre -->
+                <ion-col>
+                  <ion-label class="ion-margin-top">Fecha de cierre:</ion-label>
+                </ion-col>
+                <br />
+                <ion-item>
+                  <ion-datetime-button
+                    type="light"
+                    class="datepicker md"
+                    color="primary"
+                    datetime="datetimeEnd"
+                  ></ion-datetime-button>
+                  <ion-modal [keepContentsMounted]="true">
+                    <ng-template>
+                      <!-- [(ngModel)]="endDate" -->
+                      <ion-datetime
+                        required
+                        id="datetimeEnd"
+                        (ionChange)="onEndDateChange($event)"
+                        showDefaultButtons="tue"
+                      ></ion-datetime>
+                    </ng-template>
+                  </ion-modal>
+                </ion-item>
+              </ion-col>
+            </ion-grid>
+
+            <!-- Selección de Prioridad -->
+            <ion-item class="ion-margin-top">
+              <ion-select
+                required
+                aria-label="Prioridad"
+                interface="popover"
+                placeholder="Seleccione Prioridad"
+                [(ngModel)]="prioritySelect"
+              >
+                <!-- (ionChange)="handlePriority($event)" -->
+                <ion-select-option value="1"
+                  >Prioridad(1) Bajo</ion-select-option
+                >
+                <ion-select-option value="2"
+                  >Prioridad(2) Medio</ion-select-option
+                >
+                <ion-select-option value="3"
+                  >Prioridad(3) Alto</ion-select-option
+                >
+                <ion-select-option value="4"
+                  >Prioridad(4) Urgente</ion-select-option
+                >
+                <ion-select-option value="5"
+                  >Prioridad(5) Requerido</ion-select-option
+                >
+              </ion-select>
+            </ion-item>
+
+            <!-- Selección de Responsable -->
+            <ion-item class="ion-margin-top">
+              <ion-select
+                required
+                aria-label="Responsable"
+                interface="popover"
+                placeholder="Seleccione Responsable"
+                [(ngModel)]="responsibleSelect"
+              >
+                <!-- (ionChange)="handleResponsible($event)" -->
+                <ion-select-option value="1">Secopla</ion-select-option>
+                <ion-select-option value="2">Cliente </ion-select-option>
+              </ion-select>
+            </ion-item>
+            <br />
+
+            <!-- Comentarios -->
+            <ion-col size="12">
+              <ion-label>Comentarios:</ion-label>
+              <textarea
+                required
+                rows="4"
+                col="30"
+                nz-input
+                [(ngModel)]="descriptionTicket"
+              ></textarea>
+            </ion-col>
+            <br />
+
+            <!-- Comentarios -->
+            <ion-col size="12">
+              <ion-label>Acción correctiva:</ion-label>
+              <textarea
+                required
+                rows="4"
+                col="30"
+                nz-input
+                [(ngModel)]="correctiveAction"
+              ></textarea>
+            </ion-col>
+            <br />
+
+            <!-- Añadir archivos -->
+            <ion-item>
+              <ion-item>
+                <ion-grid>
+                  <ion-label>Añadir archivos</ion-label>
+                  <ion-col size="12" class="ion-justify-content-center">
+                    <img
+                      *ngIf="evidenceImageTicket"
+                      [src]="evidenceImageTicket"
+                    />
+                    <ion-button expand="block" (click)="takePictureTicket()"
+                      >Agregar foto</ion-button
+                    >
+                  </ion-col>
+                </ion-grid>
+              </ion-item>
+            </ion-item>
+
+            <!-- Mensaje para completar cada campo -->
+            <ion-item> </ion-item>
+          </nz-spin>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+  </ng-container>
+
+  <ng-container>
+    <ion-modal [isOpen]="showModalAddMinuteItem" [backdropDismiss]="false">
+      <ng-template style="height: 0 !important">
+        <ion-toolbar>
+          <ion-buttons slot="start">
+            <ion-button
+              class="btn-close_modal"
+              color="dark"
+              shape="round"
+              (click)="modalAddMinuteItem(false)"
+              >Cancelar</ion-button
+            >
+          </ion-buttons>
+          <ion-buttons slot="end">
+            <ion-button
+              color="dark"
+              shape="round"
+              (click)="addItemMinuteTable()"
+              >Aceptar</ion-button
+            >
+          </ion-buttons>
+        </ion-toolbar>
+        <div class="wrapper">
+          <ion-list>
+            <ion-item>
+              <ion-label>Compromisos, Acuerdos y Conclusiones </ion-label>
+              <textarea
+                rows="4"
+                nz-input
+                [(ngModel)]="taskAgreement"
+              ></textarea>
+            </ion-item>
+            <ion-item>
+              <ion-label>Responsable</ion-label>
+              <ion-select
+                placeholder="Selecciona responsable"
+                [(ngModel)]="taskResponsable"
+              >
+                <!-- (ionChange)="handleChangeEvidence($event)" -->
+                <ion-select-option value="cliente">Cliente</ion-select-option>
+                <ion-select-option value="secopla"> Secopla</ion-select-option>
+              </ion-select>
+            </ion-item>
+            <ion-item class="ion-margin-bottom">
+              <ion-label>Fecha</ion-label>
+              <ion-datetime-button datetime="datetime"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <!-- [(ngModel)]="startDate" -->
+                  <ion-datetime
+                    id="datetime"
+                    (ionChange)="onMinuteDateChange($event)"
+                    showDefaultButtons="tue"
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
+            </ion-item>
+            <ion-item>
+              <ion-label>Estatus</ion-label>
+              <ion-select
+                placeholder="Selecciona estatus"
+                [(ngModel)]="taskMinuteStatus"
+              >
+                <!-- (ionChange)="handleChangeEvidence($event)" -->
+                <ion-select-option value="1">Concluido</ion-select-option>
+                <ion-select-option value="2">Pendiente</ion-select-option>
+                <ion-select-option value="3">En tiempo</ion-select-option>
+                <ion-select-option value="4">Atrasado</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-list>
+        </div>
+      </ng-template>
+    </ion-modal>
+  </ng-container>
+</ion-content>

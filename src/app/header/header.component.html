@@ -1,0 +1,36 @@
+<ion-header>
+  <ion-toolbar>
+    <!-- User name and Date -->
+    <ion-buttons slot="start">
+      <ion-label class="ion-text-center ion-text-wrap">
+        <p class="ion-text-start">
+          {{ fechaActual | date:'EEEE, d \'de\' MMMM' : 'local' : 'es-MX' }}
+        </p>
+        <p class="ion-text-start">del {{ fechaActual | date:'y' : 'local' : 'es-MX' }}</p>
+      </ion-label>
+      <!-- <ion-back-button default-href="tabs/tab2"></ion-back-button> -->
+    </ion-buttons>
+    <ion-row class="header-dashboard" slot="end">
+      <div class="d-flex flex-row ion-align-items-center ion-justify-content-end">
+        <ion-col size="auto">
+          <div class="d-flex flex-row-reverse ion-align-items-center ion-justify-content-center">
+            <div>
+              <a [routerLink]="['/tabs/tab1']">
+                <ion-thumbnail class="avatar-img">
+                  <img alt="User icon profile" src="/assets/user-icon.png" />
+                </ion-thumbnail>
+              </a>
+            </div>
+            <div style="padding: 0 0.3em">|</div>
+            <div>
+              <ion-label>{{userdata.email}}</ion-label>
+            </div>
+          </div>
+        </ion-col>
+        <ion-col size="auto">
+          <ion-icon style="--ion-color: #ff9f4b" name="sync-circle" size="large"></ion-icon>
+        </ion-col>
+      </div>
+    </ion-row>
+  </ion-toolbar>
+</ion-header>

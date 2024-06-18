@@ -1,0 +1,20 @@
+<canvas
+  #canvas
+  (touchstart)="startDrawing($event)"
+  (touchmove)="moved($event)"
+  width="350"
+  height="200"
+></canvas>
+<p class="error-message" *ngIf="signatureNeeded">Se requiere firmar</p>
+
+<div class="buttons flex justify-between ion-margin-bottom">
+  <ion-button size="small" fill="outline" (click)="clearPad()"
+    >Firmar de nuevo</ion-button
+  >
+  <ion-button fill="clear" (click)="savePad()">Confirmar Firma</ion-button>
+</div>
+
+<!-- <div *ngIf="signatureNeeded === false">
+  <p>Signature in Base64Encoded Format</p>
+  <img src="{{ signatureImg }}" alt="Signature image" srcset="" />
+</div> -->

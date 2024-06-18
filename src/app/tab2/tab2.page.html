@@ -1,0 +1,31 @@
+<app-header></app-header>
+
+<ion-content>
+  <ion-item class="ion-margin-top">
+    <ion-label>
+      <h3 nz-typography>Reporte general</h3>
+      <p>Scroll horizontal después de la columna "checklist"</p>
+    </ion-label>
+  </ion-item>
+
+  <nz-table #columnTable [nzData]="listOfData" [nzScroll]="{ x: '560px' }">
+    <thead>
+      <tr>
+        <!-- <th nzLeft>Checklist</th> -->
+        <th class="px-3">Plan de trabajo</th>
+        <th>Cliente<br />Planta</th>
+        <th>Total<br />(cumple)</th>
+        <th>Total<br />(no cumple)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let data of columnTable.data">
+        <td>{{ data.name }}</td>
+        <td>{{ data.client_name + ' - ' + data.id_subsidiary }}</td>
+        <!-- <td nzLeft>{{ data.checklist }}</td> -->
+        <td>{{ data.answers_yes }}</td>
+        <td>{{ data.answers_no }}</td>
+      </tr>
+    </tbody>
+  </nz-table>
+</ion-content>

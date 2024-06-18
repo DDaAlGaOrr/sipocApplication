@@ -1,0 +1,492 @@
+<app-header></app-header>
+
+<!-- Tabs Segment Section -->
+<!-- <ion-button (click)="abrirModalDocument()"> Click Here! </ion-button> -->
+
+<ion-segment [(ngModel)]="selectedSegment" (ionChange)="handleSegmentChange()">
+  <ion-segment-button value="agenda">
+    <ion-label>Agenda</ion-label>
+  </ion-segment-button>
+  <ion-segment-button value="incidencia">
+    <ion-label>Incidencias</ion-label>
+  </ion-segment-button>
+</ion-segment>
+
+<ion-content>
+  <ng-container *ngIf="selectedSegment === 'agenda'">
+    <!-- (onEventClick)="linkIncident($event)" -->
+    <mbsc-eventcalendar
+      [data]="myEvents"
+      [view]="calView"
+      [headerTemplate]="customTemplate"
+      (onEventClick)="presentAlert($event)"
+    >
+      <ng-template #customTemplate>
+        <mbsc-calendar-nav class="cal-header-nav"></mbsc-calendar-nav>
+        <div class="mbsc-flex mbsc-flex-1-0 mbsc-justify-content-center">
+          <mbsc-segmented-group [(ngModel)]="view" (change)="changeView()">
+            <mbsc-segmented
+              value="month"
+              icon="material-event-note"
+            ></mbsc-segmented>
+            <mbsc-segmented
+              value="week"
+              icon="material-date-range"
+            ></mbsc-segmented>
+            <!-- <mbsc-segmented value="day" icon="material-view-day"></mbsc-segmented> -->
+          </mbsc-segmented-group>
+        </div>
+        <mbsc-calendar-prev class="cal-header-prev"></mbsc-calendar-prev>
+        <mbsc-calendar-next class="cal-header-next"></mbsc-calendar-next>
+      </ng-template>
+    </mbsc-eventcalendar>
+  </ng-container>
+
+  <!-- <ion-alert trigger="present-alert" class="custom-alert" [header]="headerAlert()" [buttons]="alertButtons">{{ client_name }}</ion-alert> -->
+
+  <ng-container *ngIf="selectedSegment === 'incidencia'">
+    <app-explore-container name="Tab 2 page"></app-explore-container>
+  </ng-container>
+
+  <!-- Documental Modal -->
+  <ion-modal>
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-buttons slot="start">
+            <ion-button (click)="cancel()">Cancelar</ion-button>
+          </ion-buttons>
+          <ion-buttons id="btn-skip">
+            <ion-button (click)="skip()">Omitir</ion-button>
+            <!-- <button nz-button (click)="skip()" nzType="text" nzBlock>Omitir</button> -->
+          </ion-buttons>
+          <!-- <ion-title>Welcome</ion-title> -->
+          <ion-buttons slot="end">
+            <ion-button (click)="confirm()" [strong]="true">Enviar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content>
+        <!-- First Tab container -->
+        <ng-container>
+          <ion-grid class="ion-margin-top">
+            <!-- Subencabezado del excel -->
+            <ion-item>
+              <ion-col>
+                <span><strong>Cliente:</strong></span>
+                <p>{{ client_name }}</p>
+              </ion-col>
+            </ion-item>
+            <ion-item>
+              <ion-col>
+                <span><strong>Folio:</strong></span>
+                <p>{{ project_folio }}</p>
+              </ion-col>
+            </ion-item>
+            <ion-item>
+              <ion-col>
+                <span><strong>Sucursal:</strong></span>
+                <p>{{ subsidiary }}</p>
+              </ion-col>
+            </ion-item>
+
+            <ion-modal
+              #modal
+              trigger="open-modal"
+              [isOpen]="isModalSurveyOpen"
+              class="modal-encuesta"
+              [backdropDismiss]="false"
+            >
+              <ng-template>
+                <ion-content>
+                  <ion-toolbar>
+                    <ion-buttons slot="start">
+                      <ion-button
+                        class="btn-close_modal"
+                        color="dark"
+                        shape="round"
+                        (click)="closeCheck(false)"
+                        >Cancelar</ion-button
+                      >
+                    </ion-buttons>
+                    <ion-buttons slot="end">
+                      <ion-button
+                        [disabled]="!validateForm.valid"
+                        class="btn-close_modal"
+                        color="dark"
+                        shape="round"
+                        (click)="setClose(false)"
+                        >Aceptar</ion-button
+                      >
+                    </ion-buttons>
+                  </ion-toolbar>
+                  <ion-list>
+                    <!-- <ion-item class="options-check">
+                      <ion-radio-group value="center" [(ngModel)]="radioValue" [allowEmptySelection]="true">
+                        <ion-item>
+                          <ion-row>
+                            <ion-col>
+                              <ion-radio value="yes" justify="center" labelPlacement="end">Sí Cumple</ion-radio>
+                            </ion-col>
+                            <ion-col>
+                              <ion-radio value="no" justify="center" labelPlacement="end">No Cumple</ion-radio>
+                            </ion-col>
+                          </ion-row>
+                        </ion-item>
+                      </ion-radio-group>
+                    </ion-item> -->
+
+                    <form
+                      nz-form
+                      [formGroup]="validateForm"
+                      (ngSubmit)="submitForm()"
+                    >
+                      <ion-item class="mt-5">
+                        <ion-col>
+                          <ion-label>Comentario:</ion-label>
+                          <textarea
+                            formControlName="comentario"
+                            rows="4"
+                            nz-input
+                            [(ngModel)]="reason"
+                          ></textarea>
+                        </ion-col>
+                      </ion-item>
+
+                      <!-- [class]="classDblock" *ngIf="radioValue === 'no'" -->
+                      <ion-item class="ion-margin-bottom">
+                        <ion-grid>
+                          <ion-label>Añadir archivos</ion-label>
+                          <ion-col size="12" class="ion-justify-content-center">
+                            <nz-upload
+                              nzType="drag"
+                              [nzMultiple]="true"
+                              nzAction="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                              (nzChange)="handleChange($event)"
+                            >
+                              <ion-icon
+                                name="cloud-upload-outline"
+                                color="medium"
+                              ></ion-icon>
+                              <p class="ant-upload-text">
+                                Click para cargar archivos
+                              </p>
+                            </nz-upload>
+                          </ion-col>
+                        </ion-grid>
+                      </ion-item>
+                    </form>
+                  </ion-list>
+                </ion-content>
+              </ng-template>
+            </ion-modal>
+
+            <nz-divider nzText="Checklist Documental"></nz-divider>
+
+            <!-- Tipo de carpeta; digital o física -->
+            <ion-item>
+              <ion-grid>
+                <ion-row>
+                  <ion-col>
+                    <span>Validación de Carpeta</span>
+                  </ion-col>
+                  <ion-col size="12">
+                    <ion-item>
+                      <ion-select placeholder="Seleccionar">
+                        <ion-select-option value="fisica"
+                          >Carpeta Física</ion-select-option
+                        >
+                        <ion-select-option value="digital"
+                          >Carpeta Digital</ion-select-option
+                        >
+                      </ion-select>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-item>
+          </ion-grid>
+
+          <!-- <ion-list>
+            <div class="accordion accordion-flush">
+              <div class="accordion-item">
+                <h2 class="accordion-header" (click)="toggleItem(1)">
+                  <button class="accordion-button" [ngClass]="{'collapsed': !isItemOpen(1)}" data-bs-toggle="collapse">
+                    ÁREAS DE OPORTUNIDAD CRÍTICAS PARA EL PROGRAMA MIP
+                  </button>
+                </h2>
+                <ion-item *ngIf="isItemOpen(1)">
+                  <div class="accordion-body">
+                    <ion-list>
+                      <ion-list *ngFor="let item of checklist;let i = index" class="ion-margin-bottom">
+                        <div class="list-item">
+                          <ion-item>{{item.description}}</ion-item>
+                          <ion-list class="options-check">
+                            <ion-radio-group value="center" [allowEmptySelection]="true">
+                              <ion-item>
+                                <ion-row>
+                                  <ion-col>
+                                    <ion-radio (click)="answerDocumentalYes(item.id)" value="yes" justify="center"
+                                      labelPlacement="end">Sí Cumple</ion-radio>
+                                  </ion-col>
+                                  <ion-col>
+                                    <ion-radio id="open-modal" value="no" (click)="setOpen(true,item.id,i)"
+                                      justify="center" labelPlacement="end">No Cumple</ion-radio>
+                                  </ion-col>
+                                </ion-row>
+                              </ion-item>
+                            </ion-radio-group>
+                          </ion-list>
+                        </div>
+                      </ion-list>
+                    </ion-list>
+                  </div>
+                </ion-item>
+              </div>
+
+              <div class="accordion-item">
+                <h2 class="accordion-header" (click)="toggleItem(2)">
+                  <button class="accordion-button" [ngClass]="{'collapsed': !isItemOpen(2)}" data-bs-toggle="collapse">
+                    REPORTES DE SERVICIO
+                  </button>
+                </h2>
+                <ion-item *ngIf="isItemOpen(2)">
+                  <div class="accordion-body">
+                    <ion-list class="ion-margin-bottom">
+                      <div class="list-item">
+                        <nz-card style="width:300px;" nzTitle="Licencia Sanitaria"
+                          class="ant-card ant-card-bordered my-4 px-0">
+                          <ion-list>
+                            <ion-list *ngFor="let item of checklist;let i = index" class="ion-margin-bottom">
+                              <div class="list-item">
+                                <ion-item>{{item.description}}</ion-item>
+                                <ion-list class="options-check py-0">
+                                  <ion-radio-group value="center" [allowEmptySelection]="true">
+                                    <ion-item>
+                                      <div class="d-flex flex-row align-items-center justify-content-center gap-1">
+                                        <ion-col class="py-0">
+                                          <ion-radio (click)="answerDocumentalYes(item.id)" value="yes" justify="center"
+                                            labelPlacement="end">Sí Cumple</ion-radio>
+                                        </ion-col>
+                                        <ion-col class="py-0">
+                                          <ion-radio id="open-modal" value="no" (click)="setOpen(true,item.id,i)"
+                                            justify="center" labelPlacement="end">No Cumple</ion-radio>
+                                        </ion-col>
+                                      </div>
+                                    </ion-item>
+                                  </ion-radio-group>
+                                </ion-list>
+                              </div>
+                            </ion-list>
+                          </ion-list>
+                        </nz-card>
+                      </div>
+                    </ion-list>
+                  </div>
+                </ion-item>
+              </div>
+
+              <div class="accordion-item">
+                <h2 class="accordion-header" (click)="toggleItem(3)">
+                  <button class="accordion-button" [ngClass]="{'collapsed': !isItemOpen(3)}" data-bs-toggle="collapse">
+                    CAPACITACIONES Y COMPETENCIAS<br>DEL TÉCNICO
+                  </button>
+                </h2>
+                <ion-item *ngIf="isItemOpen(3)">
+                  <div class="accordion-body mt-2">
+                    <ion-list>
+                      <ion-list class="ion-margin-bottom">
+                        <div style="border-bottom: 1px solid rgb(233, 233, 233);">
+                          <label nz-checkbox [(ngModel)]="allChecked" (ngModelChange)="updateAllChecked()"
+                            [nzIndeterminate]="indeterminate">
+                            Certificación CONOCER  ó DC3(Cuando aplique)
+                          </label>
+                          <label nz-checkbox>
+                            Manejo integrado de plagas
+                          </label>
+                          <label nz-checkbox>
+                            Buenas prácticas de manufactura y seguridad alimentaria
+                          </label>
+                          <label nz-checkbox>
+                            Métodos y equipos de aplicación
+                          </label>
+                          <label nz-checkbox>
+                            Seguridad en el trabajo y manejo de químicos (plaguicidas)
+                          </label>
+                          <label nz-checkbox>
+                            Sistema de reporteo
+                          </label>
+                        </div>
+                      </ion-list>
+                      <div class="">
+                        <h6>Técnico 1:</h6>
+                        <nz-checkbox-group [(ngModel)]="checkOptionsOne"
+                          (ngModelChange)="updateSingleChecked()"></nz-checkbox-group>
+                        <br />
+
+                        <h6 class="mt-3">Técnico 2:</h6>
+                        <nz-checkbox-group [(ngModel)]="checkOptionsTwo"
+                          (ngModelChange)="updateSingleChecked()"></nz-checkbox-group>
+                      </div>
+                    </ion-list>
+                  </div>
+                </ion-item>
+              </div>
+
+              <div class="accordion-item">
+                <h2 class="accordion-header" (click)="toggleItem(4)">
+                  <button class="accordion-button" [ngClass]="{'collapsed': !isItemOpen(4)}" data-bs-toggle="collapse">
+                    INFORMACIÓN DE LOS PRODUCTOS UTILIZADOS
+                  </button>
+                </h2>
+                <ion-item *ngIf="isItemOpen(4)">
+                  <div class="accordion-body mt-3">
+                    <ion-list>
+                      <ion-list class="ion-margin-bottom">
+                        <div style="border-bottom: 1px solid rgb(233, 233, 233);">
+                          <h5 class="mb-2">Productos:</h5>
+                          <label nz-checkbox [(ngModel)]="allChecked" (ngModelChange)="updateAllChecked()"
+                            [nzIndeterminate]="indeterminate">
+                            Registro sanitario
+                          </label>
+                          <label nz-checkbox>
+                            Hoja seguridad
+                          </label>
+                          <label nz-checkbox>
+                            Ficha técnica
+                          </label>
+                          <label nz-checkbox>
+                            Etiqueta a color
+                          </label>
+                        </div>
+                      </ion-list>
+                      <div class="">
+                        <h6>Producto 1:</h6>
+                        <nz-checkbox-group [(ngModel)]="checkOptionsOne"
+                          (ngModelChange)="updateSingleChecked()"></nz-checkbox-group>
+                        <br />
+
+                        <h6 class="mt-3">Producto 2:</h6>
+                        <nz-checkbox-group [(ngModel)]="checkOptionsTwo"
+                          (ngModelChange)="updateSingleChecked()"></nz-checkbox-group>
+                      </div>
+                    </ion-list>
+                  </div>
+                </ion-item>
+              </div>
+
+              <div class="accordion-item">
+                <h2 class="accordion-header" (click)="toggleItem(5)">
+                  <button class="accordion-button" [ngClass]="{'collapsed': !isItemOpen(5)}" data-bs-toggle="collapse">
+                    ÁREAS DE OPORTUNIDAD MAYORES PARA MIP
+                  </button>
+                </h2>
+                <ion-item *ngIf="isItemOpen(5)">
+                  <div class="accordion-body">
+                    <ion-list>
+                      <ion-list *ngFor="let item of checklist;let i = index" class="ion-margin-bottom">
+                        <div class="list-item">
+                          <ion-item>{{item.description}}</ion-item>
+                          <ion-list class="options-check">
+                            <ion-radio-group value="center" [allowEmptySelection]="true">
+                              <ion-item>
+                                <ion-row>
+                                  <ion-col>
+                                    <ion-radio (click)="answerDocumentalYes(item.id)" value="yes" justify="center"
+                                      labelPlacement="end">Sí Cumple</ion-radio>
+                                  </ion-col>
+                                  <ion-col>
+                                    <ion-radio id="open-modal" value="no" (click)="setOpen(true,item.id,i)"
+                                      justify="center" labelPlacement="end">No Cumple</ion-radio>
+                                  </ion-col>
+                                </ion-row>
+                              </ion-item>
+                            </ion-radio-group>
+                          </ion-list>
+                        </div>
+                      </ion-list>
+                    </ion-list>
+                  </div>
+                </ion-item>
+              </div>
+
+              <div class="accordion-item">
+                <h2 class="accordion-header" (click)="toggleItem(6)">
+                  <button class="accordion-button" [ngClass]="{'collapsed': !isItemOpen(6)}" data-bs-toggle="collapse">
+                    ÁREAS DE OPORTUNIDAD MENORES PARA MIP
+                  </button>
+                </h2>
+                <ion-item *ngIf="isItemOpen(6)">
+                  <div class="accordion-body">
+                    <ion-list>
+                      <ion-list *ngFor="let item of checklist;let i = index" class="ion-margin-bottom">
+                        <div class="list-item">
+                          <ion-item>{{item.description}}</ion-item>
+                          <ion-list class="options-check">
+                            <ion-radio-group value="center" [allowEmptySelection]="true">
+                              <ion-item>
+                                <ion-row>
+                                  <ion-col>
+                                    <ion-radio (click)="answerDocumentalYes(item.id)" value="yes" justify="center"
+                                      labelPlacement="end">Sí Cumple</ion-radio>
+                                  </ion-col>
+                                  <ion-col>
+                                    <ion-radio id="open-modal" value="no" (click)="setOpen(true,item.id,i)"
+                                      justify="center" labelPlacement="end">No Cumple</ion-radio>
+                                  </ion-col>
+                                </ion-row>
+                              </ion-item>
+                            </ion-radio-group>
+                          </ion-list>
+                        </div>
+                      </ion-list>
+                    </ion-list>
+                  </div>
+                </ion-item>
+              </div>
+            </div>
+          </ion-list> -->
+
+          <ion-list>
+            <ion-list
+              *ngFor="let item of checklist;let i = index"
+              class="ion-margin-bottom"
+            >
+              <div class="list-item">
+                <ion-item>{{item.description}}</ion-item>
+                <ion-list class="options-check">
+                  <ion-radio-group value="center" [allowEmptySelection]="true">
+                    <ion-item>
+                      <ion-row>
+                        <ion-col>
+                          <ion-radio
+                            (click)="answerDocumentalYes(item.id)"
+                            value="yes"
+                            justify="center"
+                            labelPlacement="end"
+                            >Sí Cumple</ion-radio
+                          >
+                        </ion-col>
+                        <ion-col>
+                          <ion-radio
+                            id="open-modal"
+                            value="no"
+                            (click)="setOpen(true,item.id,i)"
+                            justify="center"
+                            labelPlacement="end"
+                            >No Cumple</ion-radio
+                          >
+                        </ion-col>
+                      </ion-row>
+                    </ion-item>
+                  </ion-radio-group>
+                </ion-list>
+              </div>
+            </ion-list>
+          </ion-list>
+        </ng-container>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+</ion-content>

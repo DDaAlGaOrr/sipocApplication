@@ -1,0 +1,71 @@
+.login-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /* align-items: center; */
+  /* padding: 16em 0 16em 0; */
+  min-height: 780px;
+  height: 100%;
+  /* background-image: url(../../assets/images/Login1.jpeg);
+	background-size: cover;
+	background-position: center; */
+}
+
+.logo-login {
+  display: flex;
+  justify-content: center;
+  background: rgb(4, 132, 182);
+  background: linear-gradient(320deg, rgba(4, 132, 182, 1) 40%, rgba(5, 168, 232, 1) 100%);
+  /* background: #0485B6; */
+  border-radius: 0 0 50px 50px;
+
+  /* margin-bottom: 2em; */
+  img {
+    width: 250px;
+    max-width: 100%;
+    margin: 150px 0;
+  }
+}
+
+/* #bg-login,
+app-login,
+ion-content#bg-login {
+	background-image: url(../../assets/images/Login1.jpeg);
+} */
+
+.inputs-items {
+  gap: 2em;
+}
+
+.ion-valid.sc-ion-input-md-h {
+  --highlight-color: #0485B6;
+}
+
+.loginButton {
+  --background: #0485B6;
+  --background-hover: #098fc3;
+  --background-activated: #0485B6;
+  --background-focused: #0485B6;
+  --color: white;
+  --box-shadow: 0 2px 6px 0 rgb(0, 0, 0, 0.25);
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+}
+
+.ion-activatable,
+.ion-datetime-button {
+  background: transparent !important;
+}
+
+ion-list.md.list-md,
+.item-native {
+  background: transparent !important;
+}
+
+.item-native {
+  background: none !important
+}
+
+.form-items {
+  height: 50%;
+}
