@@ -104,7 +104,6 @@ export class Tab1Page implements OnInit {
       this.indeterminate = false;
     }
   }
-  /* Check Productos End */
 
   validateForm: FormGroup<{
     comentario: FormControl<string>;
