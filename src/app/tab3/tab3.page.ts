@@ -965,6 +965,7 @@ export class Tab3Page {
       items,
       this.taskStatus
     );
+    console.log(this.taskStatus)
     this.id_task = '';
     this.checklist_id = '';
     this.checklist_answers = [];
@@ -1688,6 +1689,7 @@ export class Tab3Page {
   }
 
   handleTaskStatus(event: any) {
+    console.log(event.detail.value)
     this.taskStatus = event.detail.value;
     if (this.taskStatus == '10' || this.taskStatus == '13') {
       this.checklist.forEach((item) => {
@@ -1704,7 +1706,6 @@ export class Tab3Page {
         );
       });
     }
-    this.taskStatus = '';
   }
 
   onMinuteDateChange(event: any) {

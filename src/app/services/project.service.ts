@@ -11,7 +11,7 @@ export class ProjectService {
     rel_type: string,
     id_checklist: string,
     checklist_answers: any,
-    // taskStatus: any = '',
+    taskStatus: any = '',
     description: any = ''
   ) {
     if (!this.selectedItems) {
@@ -23,7 +23,7 @@ export class ProjectService {
       existingItem.checklist_answers = checklist_answers;
       existingItem.rel_type = rel_type;
       existingItem.id_checklist = id_checklist;
-      // existingItem.taskStatus = taskStatus;
+      existingItem.taskStatus = taskStatus;
       existingItem.description = description;
     } else {
       this.selectedItems[rel_id] = {
@@ -31,7 +31,7 @@ export class ProjectService {
         checklist_answers: checklist_answers,
         rel_type: rel_type,
         id_checklist: id_checklist,
-        // taskStatus: taskStatus,
+        taskStatus: taskStatus,
         description: description,
       };
     }
@@ -66,7 +66,7 @@ interface ProjectAnswers {
   rel_type: string;
   id_checklist: string;
   checklist_answers: any;
-  // taskStatus: string;
+  taskStatus: string;
   description: string;
 }
 interface ChecklistAnswer {

@@ -15,8 +15,6 @@ export class ChecklistTaskService {
     correctiveTaskAction: string
   ) {
     const existingItem = this.selectedItems[itemId];
-    console.log(existingItem);
-    console.log(itemId);
     if (existingItem) {
       existingItem.answer = answer;
       existingItem.description = description;

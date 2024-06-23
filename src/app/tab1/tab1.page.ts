@@ -44,6 +44,7 @@ import {
   TopLevel,
 } from '../interfaces/calendar-events.interface';
 import { StorageProjectService } from '../services/storage-project.service';
+import { NetworkService } from './../services/network.service';
 
 setOptions({
   locale: localeEs,
@@ -353,7 +354,8 @@ export class Tab1Page implements OnInit {
     private authService: AuthService,
     private storageService: StorageService,
     private toastService: ToastService,
-    private storageProjectService: StorageProjectService
+    private storageProjectService: StorageProjectService,
+    private networkService:NetworkService
   ) {}
 
   /* Método para manejar el cambio en el valor del radio button */
@@ -380,50 +382,54 @@ export class Tab1Page implements OnInit {
     const type = event.event.rel_type;
 
     if (type == 'project') {
-      this.httpService
-        .get(`staffs/${project_id}/documentalChecklist`, true)
-        .then((observableResult) => {
-          observableResult.subscribe(
-            async (response: any) => {
-              if (response.items) {
-                const storage: any =
-                  await this.storageProjectService.loadProgress();
-                if (
-                  storage.project_data?.queyParams?.project_id != project_id
-                ) {
-                  await this.storageProjectService.clearItems();
-                }
-                this.router.navigate(['/tabs', 'tab3'], {
-                  queryParams: {
-                    task_id: this.task_id,
-                    project_id: project_id,
-                    type: type,
-                    is_active: false,
-                  },
-                });
-                this.storageProjectService.saveProgress(
-                  {
-                    queyParams: {
+      if(this.networkService.getNetworkStatus()){
+        this.httpService
+          .get(`staffs/${project_id}/documentalChecklist`, true)
+          .then((observableResult) => {
+            observableResult.subscribe(
+              async (response: any) => {
+                if (response.items) {
+                  const storage: any =
+                    await this.storageProjectService.loadProgress();
+                  if (
+                    storage.project_data?.queyParams?.project_id != project_id
+                  ) {
+                    await this.storageProjectService.clearItems();
+                  }
+                  this.router.navigate(['/tabs', 'tab3'], {
+                    queryParams: {
                       task_id: this.task_id,
                       project_id: project_id,
                       type: type,
+                      is_active: false,
                     },
-                  },
-                  'current_project'
-                );
-              } else {
-                this.toastService.presentToast('Plan de trabajo finalizado');
+                  });
+                  this.storageProjectService.saveProgress(
+                    {
+                      queyParams: {
+                        task_id: this.task_id,
+                        project_id: project_id,
+                        type: type,
+                      },
+                    },
+                    'current_project'
+                  );
+                } else {
+                  this.toastService.presentToast('Plan de trabajo finalizado');
+                }
+              },
+              (error: any) => {
+                console.error('Error al enviar datos:', error);
               }
-            },
-            (error: any) => {
-              console.error('Error al enviar datos:', error);
-            }
-          );
-          // return this.modal.present();
-        })
-        .catch((error) => {
-          console.error('Error al realizar la solicitud de calendar:', error);
-        });
+            );
+            // return this.modal.present();
+          })
+          .catch((error) => {
+            console.error('Error al realizar la solicitud de calendar:', error);
+          });
+      }else{
+        console.log('No hay red')
+      }
     } else {
       this.httpService
         .get(`staffs/${project_id}/taskCompleted`, true)
