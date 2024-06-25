@@ -18,6 +18,7 @@ import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getStorage, provideStorage } from '@angular/fire/storage';
 import { Drivers } from '@ionic/storage';
 import CordovaSQLiteDriver from 'localforage-cordovasqlitedriver';
+import { SQLite } from '@ionic-native/sqlite/ngx';
 
 @NgModule({
   declarations: [AppComponent],
@@ -36,6 +37,7 @@ import CordovaSQLiteDriver from 'localforage-cordovasqlitedriver';
   ],
   providers: [
     HttpClientModule,
+    SQLite,
     {
       provide: RouteReuseStrategy,
       useClass: IonicRouteStrategy,

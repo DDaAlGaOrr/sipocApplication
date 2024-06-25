@@ -30,7 +30,10 @@ export class StorageProjectService {
   }
 
   async clearItems() {
-    await this.storage.clear();
+    await this.storage.remove('checklistProgress');
+    await this.storage.remove('current_project');
+    await this.storage.remove('documentalProgress');
+    await this.storage.remove('evidenceType');
   }
 
   async getSelectedItem(itemId: string) {

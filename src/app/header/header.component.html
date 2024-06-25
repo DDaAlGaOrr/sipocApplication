@@ -27,9 +27,17 @@
             </div>
           </div>
         </ion-col>
-        <ion-col size="auto">
-          <ion-icon style="--ion-color: #ff9f4b" name="sync-circle" size="large"></ion-icon>
-        </ion-col>
+        <ion-buttons (click)="syncData()">
+          <ion-col size="auto">
+            <ion-icon style="--ion-color: #ff9f4b" name="sync-circle" size="large"></ion-icon>
+          </ion-col>
+        </ion-buttons>
+        <ion-buttons (click)="syncDataUser()">
+          <ion-col size="auto">
+            <span>a</span>
+            <ion-icon style="--ion-color: #ff9f4b" name="sync-circle" size="large"></ion-icon>
+          </ion-col>
+        </ion-buttons>
       </div>
     </ion-row>
   </ion-toolbar>

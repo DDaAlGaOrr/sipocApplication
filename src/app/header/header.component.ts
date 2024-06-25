@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { HttpService } from '../services/http.service';
 
 import { TopLevel } from '../interfaces/calendar-events.interface';
+import { OfflineService } from '../services/offline.service';
 
 @Component({
   selector: 'app-header',
@@ -23,7 +24,8 @@ export class HeaderComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private httpService: HttpService
+    private httpService: HttpService,
+    private offlineService: OfflineService,
   ) {}
 
   ngOnInit(): void {
@@ -62,4 +64,50 @@ export class HeaderComponent implements OnInit {
         // Puedes manejar el error aquí
       });
   }
+  syncData(){
+    console.log(this.userdata.staffid)
+    this.httpService
+    .get(`staffs/${this.userdata.staffid}/getSyncProjectData`, true)
+    .then((observableResult) => {
+      observableResult.subscribe(
+        async (response: any) => {
+          await this.offlineService.setItem('projects',response.projects)      
+          await this.offlineService.setItem('projectData',response.projectData)      
+          await this.offlineService.setItem('taskData',response.taskData)      
+        },
+        (error: any) => {
+          console.error('Error al enviar datos:', error);
+        }
+      );
+    })
+    .catch((error) => {
+      console.error('Error al realizar la solicitud de calendar:', error);
+    });
+    console.log('Sinc')
+  }
+  syncDataUser()
+  {
+    this.httpService
+    .get(`staffs/${this.userdata.staffid}/getSyncUserData`, true)
+    .then((observableResult) => {
+      observableResult.subscribe(
+        async (response: any) => {
+          console.log(response)    
+          if (response && Array.isArray(response)) {
+            for (let user of response) {
+              await this.offlineService.insertUser(user);
+            }
+            console.log('Datos sincronizados');
+          }
+        },
+        (error: any) => {
+          console.error('Error al enviar datos:', error);
+        }
+      );
+    })
+    .catch((error) => {
+      console.error('Error al realizar la solicitud de calendar:', error);
+    });
+  }
+
 }

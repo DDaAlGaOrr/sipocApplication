@@ -14,6 +14,7 @@ export class ChecklistTaskService {
     customer_responsibility: boolean,
     correctiveTaskAction: string
   ) {
+    console.log('Me llamaron')
     const existingItem = this.selectedItems[itemId];
     if (existingItem) {
       existingItem.answer = answer;

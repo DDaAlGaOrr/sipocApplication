@@ -43,6 +43,8 @@ import { StorageReference } from '@firebase/storage';
 import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions/ngx';
 import { timeSharp } from 'ionicons/icons';
 import { Observable, from } from 'rxjs';
+import { NetworkService } from '../services/network.service';
+import { OfflineService } from '../services/offline.service';
 
 interface Task {
   id: string;
@@ -265,10 +267,11 @@ export class Tab3Page {
     private projectService: ProjectService,
     private checklistUvService: ChecklistUvService,
     private storageProjectService: StorageProjectService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private networkService:NetworkService,
+    private offlineService:OfflineService
   ) {
-    /* Inicializar los check en si por default */
-    // this.radioValue = 'yes';
+  
 
     this.authService
       .getUserData()
@@ -309,13 +312,23 @@ export class Tab3Page {
       this.activatedRoute.queryParams.subscribe((params) => {
         type = params['type'];
       });
-      const blob = this.dataUrlToBlob(signature);
-      const url = await this.uploadImage(blob, 'singatureEvidence');
-      this.signaturePicture = url;
-      if (type == 'task_sup') {
-        this.saveMinuteTask(this.project_id);
-      } else {
-        this.validateTaskChecklists(this.project_id);
+      if(this.networkService.getNetworkStatus()){
+        const blob = this.dataUrlToBlob(signature);
+        console.log(blob)
+        const url = await this.uploadImage(blob, 'singatureEvidence');
+        this.signaturePicture = url;
+        if (type == 'task_sup') {
+          this.saveMinuteTask(this.project_id);
+        } else {
+          this.validateTaskChecklists(this.project_id);
+        }
+      }else{
+        this.signaturePicture = signature
+        if (type == 'task_sup') {
+          this.saveMinuteTask(this.project_id);
+        } else {
+          this.validateTaskChecklists(this.project_id);
+        }
       }
 
       this.isSpinning = true;
@@ -405,6 +418,8 @@ export class Tab3Page {
 
   uvDescription: string = '';
 
+  currentTypeAnswer:string = ''
+
   openSignature(opened: boolean) {
     this.openSignatureModal = opened;
   }
@@ -416,8 +431,13 @@ export class Tab3Page {
   }
   async setCloseDocumentalNo(isOpen: boolean) {
     if (this.evidenceImageDocumental) {
-      const blob = this.dataUrlToBlob(this.evidenceImageDocumental);
-      const url = await this.uploadImage(blob, 'documentalEvidence');
+      let url = ''
+      if(this.networkService.getNetworkStatus()){
+        const blob = this.dataUrlToBlob(this.evidenceImageDocumental);
+        url = await this.uploadImage(blob, 'documentalEvidence');
+      }else{
+        url = this.evidenceImageDocumental
+      }
       this.checklistService.setSelectedItem(
         this.id_item_checklist,
         'no',
@@ -501,49 +521,75 @@ export class Tab3Page {
       emailsignature: this.emailSignatureValue,
       staff_id: this.userdata_.staffid,
     };
-    console.log(data);
-    this.httpService
-      .post(
-        `staffs/${this.userdata_.staffid}/save_checklist`,
-        JSON.stringify(data),
-        true
-      )
-      .then((observableResult) => {
-        observableResult.subscribe(
-          async (res: any) => {
-            this.openSignatureModal = false;
-            this.isSpinning = false;
-            this.openSignature(false);
-            this.openDocumentModal = false;
-            this.id_task = '';
-            this.checklist_id = '';
-            this.checklist_answers = [];
-            this.projectService.clearItems();
-            this.toastService.presentToast('Plan de trabajo finalizado');
-            this.checklistService.clearItems();
-            this.emailSignatureValue = '';
-            this.nameSignatureValue = '';
-            this.lastNameSignatureValue = '';
-            await this.storageProjectService.clearItems();
-            this.cdr.detectChanges();
-
-            // Navegar a la nueva página después de un pequeño retraso
-            setTimeout(() => {
+    if(this.networkService.getNetworkStatus()){
+      this.httpService
+        .post(
+          `staffs/${this.userdata_.staffid}/save_checklist`,
+          JSON.stringify(data),
+          true
+        )
+        .then((observableResult) => {
+          observableResult.subscribe(
+            async (res: any) => {
+              this.openSignatureModal = false;
+              this.isSpinning = false;
+              this.openSignature(false);
+              this.openDocumentModal = false;
+              this.id_task = '';
+              this.checklist_id = '';
+              this.checklist_answers = [];
+              this.projectService.clearItems();
+              this.toastService.presentToast('Plan de trabajo finalizado');
+              this.checklistService.clearItems();
+              this.emailSignatureValue = '';
+              this.nameSignatureValue = '';
+              this.lastNameSignatureValue = '';
+              await this.storageProjectService.clearItems();
+              this.cdr.detectChanges();
+  
+              // Navegar a la nueva página después de un pequeño retraso
+              setTimeout(() => {
+                this.router.navigate(['tabs/tab1']);
+              }, 100); //
               this.router.navigate(['tabs/tab1']);
-            }, 100); //
-            this.router.navigate(['tabs/tab1']);
-          },
-          (error: any) => {
-            this.toastService.presentToast(
-              'Error en la red, comuníquese con un administrador.'
-            );
-          }
-        );
-      })
-      .catch((error) => {
-        // Manejar errores relacionados con la promesa
-        console.error('Error al realizar la solicitud de login:', error);
-      });
+            },
+            (error: any) => {
+              this.toastService.presentToast(
+                'Error en la red, comuníquese con un administrador.'
+              );
+            }
+          );
+        })
+        .catch((error) => {
+          // Manejar errores relacionados con la promesa
+          console.error('Error al realizar la solicitud de login:', error);
+        });
+    }else{
+      if(await this.offlineService.saveProject('projectStorage',data)){
+        this.openSignatureModal = false;
+        this.isSpinning = false;
+        this.openSignature(false);
+        this.openDocumentModal = false;
+        this.id_task = '';
+        this.checklist_id = '';
+        this.checklist_answers = [];
+        this.projectService.clearItems();
+        this.toastService.presentToast('Plan de trabajo finalizado');
+        this.checklistService.clearItems();
+        this.emailSignatureValue = '';
+        this.nameSignatureValue = '';
+        this.lastNameSignatureValue = '';
+        await this.storageProjectService.clearItems();
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          this.router.navigate(['tabs/tab1']);
+        }, 100); //
+        this.router.navigate(['tabs/tab1']);
+        this.toastService.presentToast('Plan de trabajo almacenado');
+      }else{
+        this.toastService.presentToast('algo salio mal');
+      }
+    }
   }
   cancel() {
     this.modalTaskAnswerNo = false;
@@ -606,7 +652,6 @@ export class Tab3Page {
           .then((observableResult) => {
             observableResult.subscribe(
               (response: any) => {
-                // console.log(response);
                 this.tasksData = response.tasks;
                 this.services_areas = response.service_area;
                 this.client_name = `${response.plan_detail[0].client} - ${response.plan_detail[0].id_subsidiary}`;
@@ -680,8 +725,6 @@ export class Tab3Page {
             this.storageProjectService.init();
             observableResult.subscribe(
               (response: any) => {
-                console.log('Documental');
-                console.log(response);
                 const checklistItemsBySection: any = {};
                 this.totalPaginas = response.checklist_sections.length;
                 for (const sectionId in response.items) {
@@ -945,18 +988,23 @@ export class Tab3Page {
   }
 
   async confirm() {
+    console.log(this.currentTypeAnswer)
+    if(this.currentTypeAnswer == 'taskStatus'){
+      console.log('si entra')
     this.checklist.forEach((item) => {
-      if (item.id != 258 && item.id != 99 && item.id != 105) {
-        this.checklistTaskService.setSelectedItem(
-          item.id,
-          'yes',
-          '',
-          '',
-          false,
-          ''
-        );
-      }
-    });
+        if (item.id != 258 && item.id != 99 && item.id != 105) {
+          this.checklistTaskService.setSelectedItem(
+            item.id,
+            'yes',
+            '',
+            '',
+            false,
+            ''
+          );
+        }
+      });
+    }
+    this.currentTypeAnswer = ''
     const items = this.checklistTaskService.getAllItems();
     this.projectService.setGeneralChecklist(
       this.id_task,
@@ -1003,7 +1051,6 @@ export class Tab3Page {
             this.checklist_id = response.checklist[0].id;
             this.taskStatus =
               response.status_task != null ? response.status_task.content : 0;
-
             this.checklist.forEach((item) => {
               this.checklistTaskService.setSelectedItem(
                 item.id,
@@ -1044,8 +1091,13 @@ export class Tab3Page {
   setNoTaskAnswer(open: boolean) {
     setTimeout(async () => {
       if (this.evidenceImageTask) {
-        const blob = this.dataUrlToBlob(this.evidenceImageTask);
-        const url = await this.uploadImage(blob, 'taskEvidence');
+        let url = ''
+        if(this.networkService.getNetworkStatus()){
+          const blob = this.dataUrlToBlob(this.evidenceImageTask);
+          url = await this.uploadImage(blob, 'taskEvidence');
+        }else{
+          url =this.evidenceImageTask
+        }
         this.checklistTaskService.setSelectedItem(
           this.currentTaskChecklistItem,
           'no',
@@ -1067,8 +1119,8 @@ export class Tab3Page {
       this.taskReason = '';
       this.evidenceImageTask = '';
       this.taskChecked = false;
+      this.modalTaskAnswerNo = open;
     }, 5);
-    this.modalTaskAnswerNo = open;
   }
   handleClientSelect(event: any) {
     const selectClient = event.detail.value;
@@ -1692,6 +1744,7 @@ export class Tab3Page {
     console.log(event.detail.value)
     this.taskStatus = event.detail.value;
     if (this.taskStatus == '10' || this.taskStatus == '13') {
+      this.currentTypeAnswer = 'taskStatus'
       this.checklist.forEach((item) => {
         if (item.id == 258 || item.id == 99 || item.id == 105) {
           this.showModalTaskAnswerNo(true, item.id, 1, false);

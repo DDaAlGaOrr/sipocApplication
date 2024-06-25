@@ -45,6 +45,7 @@ import {
 } from '../interfaces/calendar-events.interface';
 import { StorageProjectService } from '../services/storage-project.service';
 import { NetworkService } from './../services/network.service';
+import { OfflineService } from '../services/offline.service';
 
 setOptions({
   locale: localeEs,
@@ -355,7 +356,8 @@ export class Tab1Page implements OnInit {
     private storageService: StorageService,
     private toastService: ToastService,
     private storageProjectService: StorageProjectService,
-    private networkService:NetworkService
+    private networkService:NetworkService,
+    private offlineService:OfflineService
   ) {}
 
   /* Método para manejar el cambio en el valor del radio button */
@@ -471,82 +473,146 @@ export class Tab1Page implements OnInit {
     this.handleIfExistProject();
   }
 
-  ngOnInit(): void {
-    this.handleIfExistProject();
-
-    this.httpService
-      .get(`tasks/${this.userdata.staffid}/tasks`, true)
-      .then((observableResult) => {
-        observableResult.subscribe(
-          (response: any) => {
-            if (response.tasks) {
-              const tasksEvents = response.tasks.map((apiEvent: any) => {
-                const localDate = new Date(apiEvent.start_date);
-                // Agregar un día
-                localDate.setDate(localDate.getDate() + 1);
-                return {
-                  start: localDate,
-                  end: localDate,
-                  title: `${apiEvent.company} - ${apiEvent.subsidiary_id}`,
-                  description: `Trampa: ${apiEvent.name}`,
-                  id: apiEvent.userid,
-                  project_id: apiEvent.id,
-                  rel_type: 'project',
-                  color: 'green',
-                  // Otras propiedades según tus necesidades
-                };
-              });
-              this.myEvents = tasksEvents;
+  async ngOnInit(){
+    this.offlineService.initializeDatabase();
+    if(this.networkService.getNetworkStatus()){
+      this.handleIfExistProject();
+      this.httpService
+        .get(`tasks/${this.userdata.staffid}/tasks`, true)
+        .then((observableResult) => {
+          observableResult.subscribe(
+            (response: any) => {
+              if (response.tasks) {
+                const tasksEvents = response.tasks.map((apiEvent: any) => {
+                  const localDate = new Date(apiEvent.start_date);
+                  // Agregar un día
+                  localDate.setDate(localDate.getDate() + 1);
+                  return {
+                    start: localDate,
+                    end: localDate,
+                    title: `${apiEvent.company} - ${apiEvent.subsidiary_id}`,
+                    description: `Trampa: ${apiEvent.name}`,
+                    id: apiEvent.userid,
+                    project_id: apiEvent.id,
+                    rel_type: 'project',
+                    color: 'green',
+                    // Otras propiedades según tus necesidades
+                  };
+                });
+                this.myEvents = tasksEvents;
+              }
+  
+              if (response.tasks_uv) {
+                const tasksUv = response.tasks_uv.map((apiEvent: any) => {
+                  const localDate = new Date(apiEvent.startdate);
+                  // Agregar un día
+                  localDate.setDate(localDate.getDate() + 1);
+                  return {
+                    start: localDate,
+                    end: localDate,
+                    title: `${apiEvent.name} - ${apiEvent.subsidiary_id}`,
+                    description: `${apiEvent.name}`,
+                    id: apiEvent.rel_id,
+                    project_id: apiEvent.id,
+                    rel_type: 'task_uv',
+                    color: 'purple',
+                  };
+                });
+                this.myEvents = this.myEvents.concat(tasksUv);
+              }
+  
+              if (response.tasks_sup) {
+                const tasksSup = response.tasks_sup.map((apiEvent: any) => {
+                  const localDate = new Date(apiEvent.startdate);
+                  // Agregar un día
+                  localDate.setDate(localDate.getDate() + 1);
+                  return {
+                    start: localDate,
+                    end: localDate,
+                    title: `${apiEvent.name} - ${apiEvent.subsidiary_id}`,
+                    description: `${apiEvent.name}`,
+                    id: apiEvent.rel_id,
+                    project_id: apiEvent.id,
+                    rel_type: 'task_sup',
+                    color: 'red',
+                  };
+                });
+                this.myEvents = this.myEvents.concat(tasksSup);
+              }
+            },
+            (error: any) => {
+              console.error('Error al enviar datos:', error);
+              // Puedes manejar el error aquí
             }
+          );
+        })
+        .catch((error) => {
+          console.error('Error al realizar la solicitud de calendar:', error);
+          // Puedes manejar el error aquí
+        });
 
-            if (response.tasks_uv) {
-              const tasksUv = response.tasks_uv.map((apiEvent: any) => {
-                const localDate = new Date(apiEvent.startdate);
-                // Agregar un día
-                localDate.setDate(localDate.getDate() + 1);
-                return {
-                  start: localDate,
-                  end: localDate,
-                  title: `${apiEvent.name} - ${apiEvent.subsidiary_id}`,
-                  description: `${apiEvent.name}`,
-                  id: apiEvent.rel_id,
-                  project_id: apiEvent.id,
-                  rel_type: 'task_uv',
-                  color: 'purple',
-                };
-              });
-              this.myEvents = this.myEvents.concat(tasksUv);
-            }
+    }else{
+      const response = await this.offlineService.getItem('projects')
+      console.log('tareas desde offline')
+      if (response.tasks) {
+        const tasksEvents = response.tasks.map((apiEvent: any) => {
+          const localDate = new Date(apiEvent.start_date);
+          // Agregar un día
+          localDate.setDate(localDate.getDate() + 1);
+          return {
+            start: localDate,
+            end: localDate,
+            title: `${apiEvent.company} - ${apiEvent.subsidiary_id}`,
+            description: `Trampa: ${apiEvent.name}`,
+            id: apiEvent.userid,
+            project_id: apiEvent.id,
+            rel_type: 'project',
+            color: 'green',
+            // Otras propiedades según tus necesidades
+          };
+        });
+        this.myEvents = tasksEvents;
+      }
 
-            if (response.tasks_sup) {
-              const tasksSup = response.tasks_sup.map((apiEvent: any) => {
-                const localDate = new Date(apiEvent.startdate);
-                // Agregar un día
-                localDate.setDate(localDate.getDate() + 1);
-                return {
-                  start: localDate,
-                  end: localDate,
-                  title: `${apiEvent.name} - ${apiEvent.subsidiary_id}`,
-                  description: `${apiEvent.name}`,
-                  id: apiEvent.rel_id,
-                  project_id: apiEvent.id,
-                  rel_type: 'task_sup',
-                  color: 'red',
-                };
-              });
-              this.myEvents = this.myEvents.concat(tasksSup);
-            }
-          },
-          (error: any) => {
-            console.error('Error al enviar datos:', error);
-            // Puedes manejar el error aquí
-          }
-        );
-      })
-      .catch((error) => {
-        console.error('Error al realizar la solicitud de calendar:', error);
-        // Puedes manejar el error aquí
-      });
+      if (response.tasks_uv) {
+        const tasksUv = response.tasks_uv.map((apiEvent: any) => {
+          const localDate = new Date(apiEvent.startdate);
+          // Agregar un día
+          localDate.setDate(localDate.getDate() + 1);
+          return {
+            start: localDate,
+            end: localDate,
+            title: `${apiEvent.name} - ${apiEvent.subsidiary_id}`,
+            description: `${apiEvent.name}`,
+            id: apiEvent.rel_id,
+            project_id: apiEvent.id,
+            rel_type: 'task_uv',
+            color: 'purple',
+          };
+        });
+        this.myEvents = this.myEvents.concat(tasksUv);
+      }
+
+      if (response.tasks_sup) {
+        const tasksSup = response.tasks_sup.map((apiEvent: any) => {
+          const localDate = new Date(apiEvent.startdate);
+          // Agregar un día
+          localDate.setDate(localDate.getDate() + 1);
+          return {
+            start: localDate,
+            end: localDate,
+            title: `${apiEvent.name} - ${apiEvent.subsidiary_id}`,
+            description: `${apiEvent.name}`,
+            id: apiEvent.rel_id,
+            project_id: apiEvent.id,
+            rel_type: 'task_sup',
+            color: 'red',
+          };
+        });
+        this.myEvents = this.myEvents.concat(tasksSup);
+      }
+    }
+
   }
 
   changeView(): void {
