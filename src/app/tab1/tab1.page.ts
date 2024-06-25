@@ -384,7 +384,7 @@ export class Tab1Page implements OnInit {
     const type = event.event.rel_type;
 
     if (type == 'project') {
-      if(this.networkService.getNetworkStatus()){
+      // if(this.networkService.getNetworkStatus()){
         this.httpService
           .get(`staffs/${project_id}/documentalChecklist`, true)
           .then((observableResult) => {
@@ -429,9 +429,9 @@ export class Tab1Page implements OnInit {
           .catch((error) => {
             console.error('Error al realizar la solicitud de calendar:', error);
           });
-      }else{
-        console.log('No hay red')
-      }
+      // }else{
+      //   console.log('No hay red')
+      // }
     } else {
       this.httpService
         .get(`staffs/${project_id}/taskCompleted`, true)
@@ -474,8 +474,8 @@ export class Tab1Page implements OnInit {
   }
 
   async ngOnInit(){
-    this.offlineService.initializeDatabase();
-    if(this.networkService.getNetworkStatus()){
+    // this.offlineService.initializeDatabase();
+    // if(this.networkService.getNetworkStatus()){
       this.handleIfExistProject();
       this.httpService
         .get(`tasks/${this.userdata.staffid}/tasks`, true)
@@ -501,7 +501,6 @@ export class Tab1Page implements OnInit {
                 });
                 this.myEvents = tasksEvents;
               }
-  
               if (response.tasks_uv) {
                 const tasksUv = response.tasks_uv.map((apiEvent: any) => {
                   const localDate = new Date(apiEvent.startdate);
@@ -520,7 +519,6 @@ export class Tab1Page implements OnInit {
                 });
                 this.myEvents = this.myEvents.concat(tasksUv);
               }
-  
               if (response.tasks_sup) {
                 const tasksSup = response.tasks_sup.map((apiEvent: any) => {
                   const localDate = new Date(apiEvent.startdate);
@@ -551,67 +549,67 @@ export class Tab1Page implements OnInit {
           // Puedes manejar el error aquí
         });
 
-    }else{
-      const response = await this.offlineService.getItem('projects')
-      console.log('tareas desde offline')
-      if (response.tasks) {
-        const tasksEvents = response.tasks.map((apiEvent: any) => {
-          const localDate = new Date(apiEvent.start_date);
-          // Agregar un día
-          localDate.setDate(localDate.getDate() + 1);
-          return {
-            start: localDate,
-            end: localDate,
-            title: `${apiEvent.company} - ${apiEvent.subsidiary_id}`,
-            description: `Trampa: ${apiEvent.name}`,
-            id: apiEvent.userid,
-            project_id: apiEvent.id,
-            rel_type: 'project',
-            color: 'green',
-            // Otras propiedades según tus necesidades
-          };
-        });
-        this.myEvents = tasksEvents;
-      }
+    // }else{
+    //   const response = await this.offlineService.getItem('projects')
+    //   console.log('tareas desde offline')
+    //   if (response.tasks) {
+    //     const tasksEvents = response.tasks.map((apiEvent: any) => {
+    //       const localDate = new Date(apiEvent.start_date);
+    //       // Agregar un día
+    //       localDate.setDate(localDate.getDate() + 1);
+    //       return {
+    //         start: localDate,
+    //         end: localDate,
+    //         title: `${apiEvent.company} - ${apiEvent.subsidiary_id}`,
+    //         description: `Trampa: ${apiEvent.name}`,
+    //         id: apiEvent.userid,
+    //         project_id: apiEvent.id,
+    //         rel_type: 'project',
+    //         color: 'green',
+    //         // Otras propiedades según tus necesidades
+    //       };
+    //     });
+    //     this.myEvents = tasksEvents;
+    //   }
 
-      if (response.tasks_uv) {
-        const tasksUv = response.tasks_uv.map((apiEvent: any) => {
-          const localDate = new Date(apiEvent.startdate);
-          // Agregar un día
-          localDate.setDate(localDate.getDate() + 1);
-          return {
-            start: localDate,
-            end: localDate,
-            title: `${apiEvent.name} - ${apiEvent.subsidiary_id}`,
-            description: `${apiEvent.name}`,
-            id: apiEvent.rel_id,
-            project_id: apiEvent.id,
-            rel_type: 'task_uv',
-            color: 'purple',
-          };
-        });
-        this.myEvents = this.myEvents.concat(tasksUv);
-      }
+    //   if (response.tasks_uv) {
+    //     const tasksUv = response.tasks_uv.map((apiEvent: any) => {
+    //       const localDate = new Date(apiEvent.startdate);
+    //       // Agregar un día
+    //       localDate.setDate(localDate.getDate() + 1);
+    //       return {
+    //         start: localDate,
+    //         end: localDate,
+    //         title: `${apiEvent.name} - ${apiEvent.subsidiary_id}`,
+    //         description: `${apiEvent.name}`,
+    //         id: apiEvent.rel_id,
+    //         project_id: apiEvent.id,
+    //         rel_type: 'task_uv',
+    //         color: 'purple',
+    //       };
+    //     });
+    //     this.myEvents = this.myEvents.concat(tasksUv);
+    //   }
 
-      if (response.tasks_sup) {
-        const tasksSup = response.tasks_sup.map((apiEvent: any) => {
-          const localDate = new Date(apiEvent.startdate);
-          // Agregar un día
-          localDate.setDate(localDate.getDate() + 1);
-          return {
-            start: localDate,
-            end: localDate,
-            title: `${apiEvent.name} - ${apiEvent.subsidiary_id}`,
-            description: `${apiEvent.name}`,
-            id: apiEvent.rel_id,
-            project_id: apiEvent.id,
-            rel_type: 'task_sup',
-            color: 'red',
-          };
-        });
-        this.myEvents = this.myEvents.concat(tasksSup);
-      }
-    }
+    //   if (response.tasks_sup) {
+    //     const tasksSup = response.tasks_sup.map((apiEvent: any) => {
+    //       const localDate = new Date(apiEvent.startdate);
+    //       // Agregar un día
+    //       localDate.setDate(localDate.getDate() + 1);
+    //       return {
+    //         start: localDate,
+    //         end: localDate,
+    //         title: `${apiEvent.name} - ${apiEvent.subsidiary_id}`,
+    //         description: `${apiEvent.name}`,
+    //         id: apiEvent.rel_id,
+    //         project_id: apiEvent.id,
+    //         rel_type: 'task_sup',
+    //         color: 'red',
+    //       };
+    //     });
+    //     this.myEvents = this.myEvents.concat(tasksSup);
+    //   }
+    // }
 
   }
 
